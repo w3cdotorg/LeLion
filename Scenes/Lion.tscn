@@ -1,0 +1,74 @@
+[gd_scene load_steps=8 format=3 uid="uid://dmayuumv4a1gh"]
+
+[ext_resource type="Script" uid="uid://dh0gkc6tf8etc" path="res://Scripts/Lion.gd" id="1_3r2l0"]
+[ext_resource type="Texture2D" uid="uid://cmjsa80060vyw" path="res://Assets/Sprites/LionHead.png" id="1_kx51r"]
+[ext_resource type="Texture2D" uid="uid://cdj6ds4mocio4" path="res://Assets/Sprites/LionHeadVomit.png" id="2_3r2l0"]
+
+[sub_resource type="Animation" id="Animation_r1xi6"]
+resource_name = "Idle"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [ExtResource("1_kx51r")]
+}
+
+[sub_resource type="Animation" id="Animation_ap63n"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [ExtResource("1_kx51r")]
+}
+
+[sub_resource type="Animation" id="Animation_c1tgt"]
+resource_name = "Vomit"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [ExtResource("2_3r2l0")]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_iklue"]
+_data = {
+&"Idle": SubResource("Animation_r1xi6"),
+&"RESET": SubResource("Animation_ap63n"),
+&"Vomit": SubResource("Animation_c1tgt")
+}
+
+[node name="Lion" type="Node2D"]
+
+[node name="LionHead" type="CharacterBody2D" parent="."]
+script = ExtResource("1_3r2l0")
+
+[node name="Sprite2D" type="Sprite2D" parent="LionHead"]
+position = Vector2(68, 67)
+texture = ExtResource("1_kx51r")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="LionHead"]
+libraries = {
+&"": SubResource("AnimationLibrary_iklue")
+}
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LionHead"]
+position = Vector2(584, 679)
