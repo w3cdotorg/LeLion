@@ -1,0 +1,48 @@
+[gd_scene load_steps=4 format=3 uid="uid://33sfcdosvxjl"]
+
+[ext_resource type="Script" uid="uid://xynvfaji27bs" path="res://Scripts/GameOver.gd" id="1_m5628"]
+
+[sub_resource type="SystemFont" id="SystemFont_qg30o"]
+msdf_size = 56
+
+[sub_resource type="LabelSettings" id="LabelSettings_m5628"]
+font = SubResource("SystemFont_qg30o")
+font_size = 256
+
+[node name="GameOver" type="CanvasLayer"]
+process_mode = 2
+script = ExtResource("1_m5628")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+offset_left = 2.0
+offset_top = 2.0
+offset_right = 2002.0
+offset_bottom = 650.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+color = Color(0.34902, 0.34902, 0.34902, 0.784314)
+
+[node name="Game Over Text" type="Label" parent="."]
+offset_right = 2000.0
+offset_bottom = 648.0
+text = "GAME OVAIRE"
+label_settings = SubResource("LabelSettings_m5628")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Rejouer" type="Button" parent="."]
+process_mode = 2
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -100.0
+offset_top = -124.0
+offset_right = 100.0
+offset_bottom = -74.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Rejouer"
+
+[connection signal="pressed" from="Rejouer" to="." method="_on_Rejouer_pressed"]

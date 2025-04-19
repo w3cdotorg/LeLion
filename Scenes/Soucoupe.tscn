@@ -1,0 +1,22 @@
+[gd_scene load_steps=5 format=3 uid="uid://b4bdndd8cklie"]
+
+[ext_resource type="Script" uid="uid://d2qwthjie01pd" path="res://Scripts/Soucoupe.gd" id="1_2newh"]
+[ext_resource type="Texture2D" uid="uid://cdh53byurccmr" path="res://Assets/Sprites/soucoupe.png" id="1_2oye1"]
+[ext_resource type="PackedScene" uid="uid://33sfcdosvxjl" path="res://Scenes/GameOver.tscn" id="2_ho52x"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_2newh"]
+radius = 69.029
+
+[node name="Soucoupe" type="Area2D"]
+script = ExtResource("1_2newh")
+game_over_scene = ExtResource("2_ho52x")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_2oye1")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-1, 1)
+scale = Vector2(1, 0.5)
+shape = SubResource("CircleShape2D_2newh")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

@@ -1,8 +1,9 @@
-[gd_scene load_steps=13 format=3 uid="uid://dmayuumv4a1gh"]
+[gd_scene load_steps=14 format=3 uid="uid://dmayuumv4a1gh"]
 
 [ext_resource type="Script" uid="uid://dh0gkc6tf8etc" path="res://Scripts/Lion.gd" id="1_3r2l0"]
 [ext_resource type="Texture2D" uid="uid://cmjsa80060vyw" path="res://Assets/Sprites/LionHead.png" id="1_kx51r"]
 [ext_resource type="Texture2D" uid="uid://cdj6ds4mocio4" path="res://Assets/Sprites/LionHeadVomit.png" id="2_3r2l0"]
+[ext_resource type="PackedScene" uid="uid://b4bdndd8cklie" path="res://Scenes/Soucoupe.tscn" id="3_c1tgt"]
 [ext_resource type="Texture2D" uid="uid://c5nevupbjsrl0" path="res://Assets/Sprites/circle_white.png" id="4_r1xi6"]
 [ext_resource type="PackedScene" uid="uid://ccpm7pmwv1le5" path="res://Scenes/ColorPickup.tscn" id="5_ap63n"]
 
@@ -75,6 +76,7 @@ gravity = Vector3(0, 800, 0)
 [node name="LionHead" type="CharacterBody2D" parent="."]
 script = ExtResource("1_3r2l0")
 color_pickup_scene = ExtResource("5_ap63n")
+soucoupe_scene = ExtResource("3_c1tgt")
 
 [node name="Sprite2D" type="Sprite2D" parent="LionHead"]
 position = Vector2(68, 67)
