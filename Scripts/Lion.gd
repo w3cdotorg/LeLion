@@ -19,9 +19,10 @@ var couleurs_debloquees: Array[Color] = []
 var est_en_train_de_vomir := false
 
 @onready var pickup_timer1 = $PickupTimer1
-#@onready var pickup_timer2 = $PickupTimer2
 @export var color_pickup_scene: PackedScene  # à assigner dans l’inspecteur avec ColorPickup.tscn
 @export var soucoupe_scene: PackedScene  # à assigner dans l’inspecteur (Soucoupe.tscn)
+@export var coccinelle_scene: PackedScene  # à assigner dans l’inspecteur
+@export var ville_scene: PackedScene  # à assigner dans l’inspecteur
 
 func mettre_a_jour_degrade_vomi():
 	print("🎨 Mise à jour de la gerbe multicolore")
@@ -84,15 +85,39 @@ func debloquer_couleur(index: int):
 			mettre_a_jour_degrade_vomi()
 		else:
 			print("⚠️ Couleur déjà débloquée :", couleur)
+		var ville = get_tree().current_scene.get_node("Ville")  # ou le bon chemin
+		if ville and ville.has_method("appliquer_couleur"):
+			ville.appliquer_couleur(couleur)
 
 func _ready():
+	add_to_group("lion")
+	print("🦁 _ready du LION exécuté")
+
+	var ville = ville_scene.instantiate()
+	print("🏙️ Ville instanciée :", ville)
+
+	get_tree().current_scene.call_deferred("add_child", ville)
+
+	var screen_size = get_viewport().get_visible_rect().size
+	var texture_size = ville.get_node("Sprite2D").texture.get_size()
+
+	ville.global_position = Vector2(
+		screen_size.x / 2,
+		screen_size.y - texture_size.y / 2
+	)
+	print("📍 Ville positionnée :", ville.global_position)
+	await get_tree().create_timer(0.1).timeout
+	ville.modulate = Color(1, 0, 0, 1)  # pour qu'elle soit rouge
+	
 	couleurs_debloquees.clear()
 	couleurs_debloquees.append(couleurs_arc_en_ciel[0])  # rouge
 	pickup_timer1.start()  # il démarrera à 0 et décomptera 20s
 	mettre_a_jour_degrade_vomi()
 	await get_tree().create_timer(2.0).timeout
 	apparaitre_soucoupe()
-	
+	await get_tree().create_timer(5.0).timeout
+	apparaitre_coccinelle()
+	# La placer en bas de l’écran :
 
 func _physics_process(_delta):
 	var input_vector = Vector2.ZERO
@@ -171,3 +196,8 @@ func apparaitre_soucoupe():
 	var soucoupe = soucoupe_scene.instantiate()
 	soucoupe.position = Vector2(-200, 200)  # position d’entrée à gauche
 	get_tree().current_scene.add_child(soucoupe)
+
+func apparaitre_coccinelle():
+	var c = coccinelle_scene.instantiate()
+	c.position = Vector2(get_viewport().get_visible_rect().size.x + 100, randf_range(150.0, 400.0))
+	get_tree().current_scene.add_child(c)

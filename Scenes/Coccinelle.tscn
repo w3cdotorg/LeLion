@@ -1,0 +1,23 @@
+[gd_scene load_steps=5 format=3 uid="uid://c4c5pimuankut"]
+
+[ext_resource type="Script" uid="uid://cv3w5av71kifg" path="res://Scripts/Coccinelle.gd" id="1_dwabj"]
+[ext_resource type="Texture2D" uid="uid://ctbv6lrtd8xjx" path="res://Assets/Sprites/ladybug.png" id="2_jgklk"]
+[ext_resource type="PackedScene" uid="uid://33sfcdosvxjl" path="res://Scenes/GameOver.tscn" id="2_lltc3"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_lltc3"]
+radius = 63.6003
+
+[node name="Coccinelle" type="Area2D"]
+scale = Vector2(0.6, 0.6)
+script = ExtResource("1_dwabj")
+game_over_scene = ExtResource("2_lltc3")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_jgklk")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 1)
+scale = Vector2(1, 0.9)
+shape = SubResource("CircleShape2D_lltc3")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

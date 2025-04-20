@@ -1,3 +1,30 @@
-[gd_scene format=3 uid="uid://c8c7a634fe6ju"]
+[gd_scene load_steps=6 format=3 uid="uid://c8c7a634fe6ju"]
+
+[ext_resource type="Texture2D" uid="uid://bur8eq03wokhq" path="res://Assets/Sprites/skyline_2000px.png" id="1_226me"]
+[ext_resource type="Script" uid="uid://cfvyr2gvgxus0" path="res://Scripts/Ville.gd" id="1_kncr7"]
+[ext_resource type="Shader" uid="uid://cukp1o38p8p6p" path="res://Shaders/Ville.gdshader" id="2_0krw8"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_0krw8"]
+shader = ExtResource("2_0krw8")
+shader_parameter/paint_mask = ExtResource("1_226me")
+shader_parameter/base_color = Color(0.2, 0.2, 0.2, 1)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0krw8"]
+size = Vector2(2003, 252)
 
 [node name="Ville" type="Node2D"]
+script = ExtResource("1_kncr7")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_0krw8")
+texture = ExtResource("1_226me")
+
+[node name="PeintureZone" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PeintureZone"]
+position = Vector2(0.5, -6)
+shape = SubResource("RectangleShape2D_0krw8")
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 0.1
+autostart = true
