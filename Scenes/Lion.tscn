@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://dmayuumv4a1gh"]
+[gd_scene load_steps=19 format=3 uid="uid://dmayuumv4a1gh"]
 
 [ext_resource type="Script" uid="uid://dh0gkc6tf8etc" path="res://Scripts/Lion.gd" id="1_3r2l0"]
 [ext_resource type="Texture2D" uid="uid://cmjsa80060vyw" path="res://Assets/Sprites/LionHead.png" id="1_kx51r"]
@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://c5nevupbjsrl0" path="res://Assets/Sprites/circle_white.png" id="4_r1xi6"]
 [ext_resource type="PackedScene" uid="uid://c8c7a634fe6ju" path="res://Scenes/Ville.tscn" id="5_03dqy"]
 [ext_resource type="PackedScene" uid="uid://ccpm7pmwv1le5" path="res://Scenes/ColorPickup.tscn" id="5_ap63n"]
+[ext_resource type="Script" uid="uid://dmbxtsy64rnau" path="res://Scripts/gerbe_traceuse_2.gd" id="9_or3p1"]
 
 [sub_resource type="Animation" id="Animation_r1xi6"]
 resource_name = "Idle"
@@ -73,6 +74,12 @@ directional_velocity_max = 256.0
 directional_velocity_curve = SubResource("CurveXYZTexture_ap63n")
 gravity = Vector3(0, 800, 0)
 
+[sub_resource type="ConvexPolygonShape2D" id="ConvexPolygonShape2D_or3p1"]
+points = PackedVector2Array(0, 0, 296, 115, 48, 312)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_03dqy"]
+radius = 20.0
+
 [node name="Lion" type="Node2D"]
 
 [node name="LionHead" type="CharacterBody2D" parent="."]
@@ -118,6 +125,44 @@ one_shot = true
 [node name="PickupTimer2" type="Timer" parent="LionHead"]
 wait_time = 3.0
 one_shot = true
+
+[node name="TraceuseDebug" type="Sprite2D" parent="LionHead"]
+visible = false
+modulate = Color(1, 0, 0, 0.501961)
+texture = ExtResource("4_r1xi6")
+
+[node name="GerbeTraceuse" type="Area2D" parent="LionHead"]
+process_mode = 3
+visible = false
+position = Vector2(70, 68)
+collision_mask = 8
+
+[node name="Sprite2D" type="Sprite2D" parent="LionHead/GerbeTraceuse"]
+position = Vector2(107, 136)
+texture = ExtResource("4_r1xi6")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LionHead/GerbeTraceuse"]
+process_mode = 3
+position = Vector2(0, -1)
+shape = SubResource("ConvexPolygonShape2D_or3p1")
+
+[node name="GerbeTraceuse2" type="Area2D" parent="LionHead"]
+process_mode = 3
+position = Vector2(70, 68)
+collision_mask = 8
+script = ExtResource("9_or3p1")
+
+[node name="Sprite2D" type="Sprite2D" parent="LionHead/GerbeTraceuse2"]
+visible = false
+position = Vector2(107, 136)
+texture = ExtResource("4_r1xi6")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LionHead/GerbeTraceuse2"]
+process_mode = 3
+shape = SubResource("CircleShape2D_03dqy")
+
+[node name="Bouche" type="Marker2D" parent="LionHead"]
+position = Vector2(186, 191)
 
 [connection signal="timeout" from="LionHead/VomiTimer" to="LionHead" method="_on_vomi_timer_timeout"]
 [connection signal="timeout" from="LionHead/PickupTimer1" to="LionHead" method="_on_pickup_timer_1_timeout"]

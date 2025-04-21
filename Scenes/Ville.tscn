@@ -20,6 +20,7 @@ material = SubResource("ShaderMaterial_0krw8")
 texture = ExtResource("1_226me")
 
 [node name="PeintureZone" type="Area2D" parent="."]
+collision_layer = 8
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PeintureZone"]
 position = Vector2(0.5, -6)
@@ -28,3 +29,6 @@ shape = SubResource("RectangleShape2D_0krw8")
 [node name="Timer" type="Timer" parent="."]
 wait_time = 0.1
 autostart = true
+
+[connection signal="body_entered" from="PeintureZone" to="." method="_on_peinture_zone_body_entered"]
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
