@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://xynvfaji27bs" path="res://Scripts/GameOver.gd" id="1_m5628"]
 
 [sub_resource type="SystemFont" id="SystemFont_qg30o"]
+subpixel_positioning = 0
 msdf_size = 56
 
 [sub_resource type="LabelSettings" id="LabelSettings_m5628"]
@@ -25,7 +26,7 @@ color = Color(0.34902, 0.34902, 0.34902, 0.784314)
 [node name="Game Over Text" type="Label" parent="."]
 offset_right = 2000.0
 offset_bottom = 648.0
-text = "GAME OVAIRE"
+text = "GAME OVER"
 label_settings = SubResource("LabelSettings_m5628")
 horizontal_alignment = 1
 vertical_alignment = 1
