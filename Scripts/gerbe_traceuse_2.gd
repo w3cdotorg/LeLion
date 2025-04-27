@@ -19,6 +19,8 @@ func _ready():
 				#print("🖌️ [GerbeTraceuse] Peinture demandée à :", local_pos, "avec couleur :", couleur)
 				#ville.peindre(local_pos, couleur, 5)  # 5 = rayon
 func _process(_delta):
+	if not monitoring:
+		return
 	for area in get_overlapping_areas():
 		print("🎯 Zone touchée :", area.name)
 

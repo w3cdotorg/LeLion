@@ -78,7 +78,7 @@ gravity = Vector3(0, 800, 0)
 points = PackedVector2Array(0, 0, 296, 115, 48, 312)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_03dqy"]
-radius = 20.0
+radius = 62.0725
 
 [node name="Lion" type="Node2D"]
 
@@ -117,6 +117,7 @@ wait_time = 0.2
 one_shot = true
 
 [node name="VomiParticlesContainer" type="Node2D" parent="LionHead"]
+z_index = 2
 position = Vector2(68, 66)
 
 [node name="PickupTimer1" type="Timer" parent="LionHead"]

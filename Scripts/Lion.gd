@@ -75,14 +75,16 @@ func mettre_a_jour_traceuse():
 		return
 
 	var base_angle = deg_to_rad(45) if direction_du_lion > 0 else deg_to_rad(135)
-	# 45° = entre droite et bas (droite-bas)
-	# 135° = entre gauche et bas (gauche-bas)
 	var direction_2d = Vector2(cos(base_angle), sin(base_angle)).normalized()
 
-	var origine = bouche.global_position
 	var distance = 100.0
-	var offset = direction_2d * distance
-	var pos_traceuse = origine + offset
+
+	# Décalage pour compenser l'inclinaison de la gerbe
+	var correction_x = 20.0 if direction_du_lion > 0 else -20.0
+
+	var origine = bouche.global_position + Vector2(correction_x, 0)
+
+	var pos_traceuse = origine + direction_2d * distance
 
 	gerbe_traceuse.global_position = pos_traceuse
 	traceuse_debug.global_position = pos_traceuse
@@ -108,6 +110,7 @@ func mettre_a_jour_traceuse():
 				mat.direction = Vector3(cos(final_angle), sin(final_angle), 0).normalized()
 
 func _ready():
+	sprite.z_index = 1
 	add_to_group("lion")
 	print("🦁 _ready du LION exécuté")
 
@@ -121,7 +124,7 @@ func _ready():
 		screen_size.y - texture_size.y / 2
 	)
 
-	gerbe_traceuse.monitoring = true
+	gerbe_traceuse.monitoring = false
 	couleurs_debloquees.clear()
 	mettre_a_jour_degrade_vomi()
 	pickup_timer1.start()
@@ -152,10 +155,21 @@ func _physics_process(_delta):
 	input_vector = input_vector.normalized() * speed
 	self.velocity = input_vector
 	move_and_slide()
+	var screen_rect = get_viewport_rect()
+	var sprite_size = sprite.texture.get_size()
+
+	#clamp lion to size of game
+	global_position.x = clamp(global_position.x, 0, screen_rect.size.x - sprite_size.x)
+	global_position.y = clamp(global_position.y, 0, screen_rect.size.y - sprite_size.y)
 
 	if input_vector.x != 0:
 		sprite.scale.x = 1 if input_vector.x > 0 else -1
-		bouche.position.x = abs(bouche.position.x) * sprite.scale.x
+
+		# On fixe la position locale de la bouche
+		if direction_du_lion > 0:
+			bouche.position.x = 150  # position à droite
+		else:
+			bouche.position.x = -30  # position à gauche
 
 func _process(_delta):
 	if est_en_train_de_vomir:
@@ -188,6 +202,9 @@ func demarrer_vomi():
 	await get_tree().process_frame
 	for emitter in vomi_container.get_children():
 		emitter.emitting = true
+
+	# 🛠 MAJ DE LA TRACEUSE après démarrage des gerbes
+	mettre_a_jour_traceuse()
 
 	vomi_timer.start()
 

@@ -31,7 +31,7 @@ func _ready():
 	var mat = sprite.material as ShaderMaterial
 	mat.set_shader_parameter("paint_mask", texture)
 	
-func peindre(position_local: Vector2, couleur: Color, radius: int = 3, couleurs_disponibles := []):
+func peindre(position_local: Vector2, couleur: Color, radius: int = 30, couleurs_disponibles := []):
 	var texture_size = sprite.texture.get_size()
 	var uv = (position_local + texture_size / 2) / texture_size
 
@@ -48,23 +48,19 @@ func peindre(position_local: Vector2, couleur: Color, radius: int = 3, couleurs_
 				var nx = clamp(px + dx, 0, TEX_SIZE.x - 1)
 				var ny = clamp(py + dy, 0, TEX_SIZE.y - 1)
 
+				# Vérifier si le pixel n'était pas déjà peint
 				var current_color = image.get_pixel(nx, ny)
-				
-				# 🎯 Si pixel pas encore peint
 				if current_color.a == 0.0:
 					pixels_peints += 1
 
 				var final_color = couleur
 				if couleurs_disponibles.size() > 0:
 					final_color = couleurs_disponibles[randi() % couleurs_disponibles.size()]
-				
-				# S'assurer que alpha = 1.0 (pleinement visible)
-				final_color.a = 1.0
-				
+
 				image.set_pixel(nx, ny, final_color)
 
 	texture.update(image)
-
+	
 	# Vérifier la victoire
 	if not victoire_declenchee and pixels_peints > total_pixels * 0.9:
 		victoire_declenchee = true
@@ -72,32 +68,28 @@ func peindre(position_local: Vector2, couleur: Color, radius: int = 3, couleurs_
 		afficher_victoire()
 
 
-func _process(_delta): # Original !
-	pass
-	
-#func _process(_delta):
+func _process(_delta):
+	#var bodies = $PeintureZone.get_overlapping_bodies()
 	#for body in $PeintureZone.get_overlapping_bodies():
+		#print("👀 Body détecté :", body.name)
+	#for body in bodies:
+		#if body.name == "GerbeTraceuse2":  # ou "GerbeTraceuse" selon le nom
+			#print("💥 Collision avec traceuse détectée")
 			#var lion = get_tree().get_nodes_in_group("lion")[0]
-			#if lion and lion.couleurs_debloquees.size() > 0:
+			#if lion:
 				#var couleur = lion.couleurs_debloquees[randi() % lion.couleurs_debloquees.size()]
 				#var local_pos = sprite.to_local(body.global_position)
-				#
-				## peinture principale
-				#peindre(local_pos, couleur, 60)
-				#
-				## peinture supplémentaire autour (simuler plus grand !)
-				#peindre(local_pos + Vector2(20, 0), couleur, 30)
-				#peindre(local_pos + Vector2(-20, 0), couleur, 30)
-				#peindre(local_pos + Vector2(0, 20), couleur, 30)
-				#peindre(local_pos + Vector2(0, -20), couleur, 30)
+				#peindre(local_pos, couleur)
+
+	pass
 
 
 func _on_PeintureZone_body_entered(body: Node) -> void:
 	if body is CPUParticles2D:
 		var pos = sprite.to_local(body.global_position)
 		var couleur = Color.RED  # tu peux choisir dynamiquement
-		#peindre(pos, couleur)  # original
-		peindre(pos, couleur)
+		#peindre(pos, couleur)
+		peindre(pos, couleur, 60)
 		
 func afficher_victoire():
 	# Ici tu peux afficher un Label, jouer un son, etc.
