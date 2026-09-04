@@ -230,6 +230,14 @@ func _run() -> void:
 	_check(etats_vus.has(boss.Etat.PAUSE) and etats_vus.has(boss.Etat.SORTIE) and etats_vus.has(boss.Etat.REPOS),
 		"le boss enchaîne entrée, pause au centre, sortie, repos")
 	_check(boss.cote == -cote_initial, "le boss change de côté après un cycle")
+	_check(signf(boss.sprite.scale.x) == boss.cote, "le sprite du boss regarde vers le centre")
+	var x_max_poly := -1e9
+	for enfant in boss.get_children():
+		if enfant is CollisionPolygon2D:
+			for p in enfant.polygon:
+				x_max_poly = max(x_max_poly, p.x)
+	_check((boss.cote > 0 and x_max_poly > 200.0) or (boss.cote < 0 and x_max_poly < 200.0),
+		"la collision du boss est en miroir avec le sprite (x max %.0f, côté %d)" % [x_max_poly, boss.cote])
 	_check(GS.vies < vies_avant, "le boss blesse le lion au passage (%d → %d)" % [vies_avant, GS.vies])
 	GS.niveau_courant = 0
 

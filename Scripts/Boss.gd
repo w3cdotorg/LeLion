@@ -24,6 +24,7 @@ var _tween: Tween
 var _demi_largeur := 0.0
 var _demi_hauteur := 0.0
 var _temps_annonce := 0.0
+var _polygones_base: Array[PackedVector2Array] = []  # silhouette tournée vers la droite
 
 
 func _ready() -> void:
@@ -36,6 +37,7 @@ func _ready() -> void:
 	_generer_collision(echelle)
 
 	cote = 1 if randf() < 0.5 else -1
+	_appliquer_cote()
 	position = Vector2(_x_hors_ecran(), y_sol - _demi_hauteur)
 	GameState.partie_terminee.connect(func(_v: bool) -> void: _arreter())
 	_changer_etat(Etat.REPOS)
@@ -84,7 +86,6 @@ func _changer_etat(nouvel_etat: Etat) -> void:
 			_tween.tween_interval(duree_repos * facteur_vitesse())
 			_tween.tween_callback(_changer_etat.bind(Etat.ANNONCE))
 		Etat.ANNONCE:
-			sprite.scale.x = abs(sprite.scale.x) * cote
 			position.x = _x_annonce()
 			_temps_annonce = 0.0
 			Audio.jouer("boss")
@@ -107,7 +108,22 @@ func _changer_etat(nouvel_etat: Etat) -> void:
 
 func _changer_cote_et_reposer() -> void:
 	cote = -cote
+	_appliquer_cote()
 	_changer_etat(Etat.REPOS)
+
+
+## Le boss regarde toujours vers le centre : venu de la droite, il est en miroir
+## (pinceau à gauche), et sa collision aussi.
+func _appliquer_cote() -> void:
+	sprite.scale.x = abs(sprite.scale.x) * cote
+	var index := 0
+	for enfant in get_children():
+		if enfant is CollisionPolygon2D and index < _polygones_base.size():
+			var points := PackedVector2Array()
+			for p in _polygones_base[index]:
+				points.append(Vector2(p.x * cote, p.y))
+			enfant.polygon = points
+			index += 1
 
 
 func _arreter() -> void:
@@ -134,5 +150,6 @@ func _generer_collision(echelle: float) -> void:
 		var points := PackedVector2Array()
 		for p in polygone:
 			points.append((p - decalage) * echelle)
+		_polygones_base.append(points)
 		collision.polygon = points
 		add_child(collision)
