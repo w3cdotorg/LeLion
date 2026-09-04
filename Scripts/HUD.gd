@@ -13,7 +13,6 @@ const COULEUR_COEUR_PERDU := Color(1, 1, 1, 0.15)
 @onready var couleurs: HBoxContainer = $Marge/Ligne/Couleurs
 @onready var chrono: Label = $Marge/Ligne/Chrono
 @onready var indice: Label = $Indice
-@onready var etiquette_pause: Label = $Pause
 @onready var etiquette_bonus: Label = $Marge/Ligne/Bonus
 
 var _pastilles: Array[ColorRect] = []
@@ -52,17 +51,6 @@ func _process(_delta: float) -> void:
 	if etiquette_bonus.visible:
 		etiquette_bonus.text = "★ GERBE XXL %d s" % ceili(GameState.bonus_restant)
 
-
-func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("pause") and GameState.partie_en_cours:
-		basculer_pause()
-		get_viewport().set_input_as_handled()
-
-
-func basculer_pause() -> void:
-	var en_pause := not get_tree().paused
-	get_tree().paused = en_pause
-	etiquette_pause.visible = en_pause
 
 
 ## Affiche autant de cœurs que la difficulté en accorde ; les perdus restent en grisé.

@@ -1,0 +1,59 @@
+[gd_scene load_steps=2 format=3 uid="uid://dlelionpause0"]
+
+[ext_resource type="Script" path="res://Scripts/PauseMenu.gd" id="1_pause"]
+
+[node name="PauseMenu" type="CanvasLayer"]
+process_mode = 3
+layer = 9
+visible = false
+script = ExtResource("1_pause")
+
+[node name="Fond" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.1, 0.1, 0.12, 0.7)
+
+[node name="Centre" type="CenterContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Colonne" type="VBoxContainer" parent="Centre"]
+layout_mode = 2
+theme_override_constants/separation = 28
+alignment = 1
+
+[node name="Titre" type="Label" parent="Centre/Colonne"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 120
+text = "PAUSE"
+horizontal_alignment = 1
+
+[node name="Continuer" type="Button" parent="Centre/Colonne"]
+custom_minimum_size = Vector2(320, 64)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 32
+text = "Continuer"
+
+[node name="Menu" type="Button" parent="Centre/Colonne"]
+custom_minimum_size = Vector2(320, 64)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 32
+text = "Revenir au menu"
+
+[node name="Aide" type="Label" parent="Centre/Colonne"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.6)
+theme_override_font_sizes/font_size = 22
+text = "Échap pour reprendre"
+horizontal_alignment = 1
+
+[connection signal="pressed" from="Centre/Colonne/Continuer" to="." method="reprendre"]
+[connection signal="pressed" from="Centre/Colonne/Menu" to="." method="_on_menu_pressed"]

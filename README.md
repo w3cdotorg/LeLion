@@ -29,7 +29,7 @@ pour doubler la largeur de ta gerbe pendant huit secondes.
 |---|---|---|
 | Se déplacer | Flèches, WASD / ZQSD | Stick gauche, croix |
 | Vomir | Espace, Entrée | A |
-| Pause | Échap, P | Start |
+| Pause (Continuer / Revenir au menu) | Échap, P | Start |
 
 ## Lancer le jeu
 
@@ -43,7 +43,7 @@ godot .
 ## Structure
 
 ```
-Scenes/     Titre, Main (partie), Lion, Ville, HUD, GameOver, ColorPickup, BonusPickup, CoeurPickup, Soucoupe, Coccinelle, Boss
+Scenes/     Titre, Main (partie), Lion, Ville, HUD, PauseMenu, GameOver, ColorPickup, BonusPickup, CoeurPickup, Soucoupe, Coccinelle, Boss
 Scripts/    un script par scène + autoloads GameState (partie, vies, niveaux, difficultés), Scores (records), Audio (sons)
 Shaders/    Ville.gdshader : applique le masque de peinture sur la skyline
 Assets/     Sprites (utilisés), Sons (générés), src (matériel de référence, ignoré par Godot)
