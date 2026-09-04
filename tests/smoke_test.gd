@@ -26,12 +26,27 @@ func _frames(n: int) -> void:
 
 func _run() -> void:
 	print("== smoke test LeLion ==")
-	GS = root.get_node_or_null("GameState")
-	if GS == null:
-		GS = load("res://Scripts/GameState.gd").new()
-		GS.name = "GameState"
-		root.add_child(GS)
-		print("  (autoload GameState ajouté manuellement)")
+	GS = root.get_node("GameState")
+	var scores: Node = root.get_node("Scores")
+	scores.chemin = "user://scores_test.cfg"
+	scores.effacer()
+
+	# Écran titre : un bouton par niveau, lancer un niveau le sélectionne
+	var titre: Control = load("res://Scenes/Titre.tscn").instantiate()
+	root.add_child(titre)
+	await _frames(1)
+	_check(titre.boutons.size() == GS.NIVEAUX.size(), "l'écran titre a un bouton par niveau (%d)" % titre.boutons.size())
+	_check("pas encore peint" in titre.boutons[1].text, "un niveau jamais gagné affiche « pas encore peint »")
+	GS.niveau_courant = 1
+	titre.free()
+
+	# Scores
+	_check(scores.enregistrer("test", 90.0) == 0, "premier temps enregistré = record")
+	_check(scores.enregistrer("test", 120.0) == 1, "temps plus lent = rang 1")
+	_check(scores.enregistrer("test", 60.0) == 0, "temps plus rapide = nouveau record")
+	scores.charger()
+	_check(scores.meilleur_temps("test") == 60.0, "les scores sont relus depuis le disque")
+	GS.niveau_courant = 0
 	var main: Node = load("res://Scenes/Main.tscn").instantiate()
 	root.add_child(main)
 	current_scene = main
@@ -96,16 +111,19 @@ func _run() -> void:
 	var overlay: Node = main.get_node_or_null("GameOver")
 	_check(overlay != null, "l'overlay GameOver est affiché")
 	_check(overlay != null and overlay.titre.text == "GAME OVER", "l'overlay affiche GAME OVER")
+	_check(overlay != null and not overlay.bouton_suivant.visible, "pas de bouton Niveau suivant après une défaite")
 
-	# Victoire : nouvelle partie, on peint toute la skyline
+	# Victoire sur le niveau Métropole : nouvelle partie, on peint toute la skyline
 	paused = false
 	main.queue_free()
 	await _frames(2)
+	GS.niveau_courant = 1
 	main = load("res://Scenes/Main.tscn").instantiate()
 	root.add_child(main)
 	current_scene = main
 	await _frames(2)
 	ville = main.get_node("Ville")
+	_check(ville.tex_size == Vector2i(2000, 320), "la ville a chargé la skyline du niveau Métropole (%s)" % ville.tex_size)
 	GS.debloquer_couleur(0)
 	var haut: float = ville.position.y - ville.tex_size.y / 2.0
 	for x in range(0, ville.tex_size.x, 40):
@@ -116,6 +134,10 @@ func _run() -> void:
 	_check(not GS.partie_en_cours and paused, "la partie se termine en victoire")
 	overlay = main.get_node_or_null("GameOver")
 	_check(overlay != null and overlay.titre.text == "VICTOIRE !", "l'overlay affiche VICTOIRE")
+	_check(overlay != null and "Nouveau record" in overlay.sous_titre.text, "la victoire enregistre un record")
+	_check(overlay != null and overlay.bouton_suivant.visible, "le bouton Niveau suivant est proposé")
+	_check(scores.meilleur_temps("metropole") >= 0.0, "le record du niveau est persisté")
+	scores.effacer()
 
 	print("== %d échec(s) ==" % _echecs)
 	paused = false

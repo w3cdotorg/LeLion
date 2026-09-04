@@ -11,11 +11,17 @@ const COULEURS_ARC_EN_CIEL: Array[Color] = [
 	Color.CYAN, Color.BLUE, Color.VIOLET,
 ]
 const SEUIL_VICTOIRE := 0.85
+const NIVEAUX: Array[Dictionary] = [
+	{"id": "skyline", "nom": "Skyline", "texture": "res://Assets/Sprites/skyline_2000px.png"},
+	{"id": "metropole", "nom": "Métropole", "texture": "res://Assets/Sprites/skyline_metropole.png"},
+	{"id": "village", "nom": "Village", "texture": "res://Assets/Sprites/skyline_village.png"},
+]
 
 var couleurs_debloquees: Array[Color] = []
 var progression := 0.0
 var temps_ecoule := 0.0
 var partie_en_cours := false
+var niveau_courant := 0
 
 
 func _process(delta: float) -> void:
@@ -28,6 +34,19 @@ func nouvelle_partie() -> void:
 	progression = 0.0
 	temps_ecoule = 0.0
 	partie_en_cours = true
+
+
+func niveau() -> Dictionary:
+	return NIVEAUX[niveau_courant]
+
+
+func niveau_suivant_existe() -> bool:
+	return niveau_courant + 1 < NIVEAUX.size()
+
+
+func passer_au_niveau_suivant() -> void:
+	if niveau_suivant_existe():
+		niveau_courant += 1
 
 
 func couleur(index: int) -> Color:

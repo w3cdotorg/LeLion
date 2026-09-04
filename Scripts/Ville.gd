@@ -8,6 +8,7 @@ const NB_TAMPONS := 4
 const DENSITE_TAMPON := 0.5
 
 @onready var sprite: Sprite2D = $Sprite2D
+@onready var zone_shape: CollisionShape2D = $PeintureZone/CollisionShape2D
 
 var tex_size: Vector2i
 var image: Image
@@ -26,13 +27,27 @@ var _tampons_nb_couleurs := -1
 
 
 func _ready() -> void:
-	tex_size = Vector2i(sprite.texture.get_width(), sprite.texture.get_height())
+	charger_skyline(sprite.texture)
+
+
+## Remplace la skyline : recalcule la grille, le masque de peinture et la zone de collision.
+func charger_skyline(nouvelle: Texture2D) -> void:
+	sprite.texture = nouvelle
+	tex_size = Vector2i(nouvelle.get_width(), nouvelle.get_height())
+	cellules_peignables = 0
+	cellules_peintes = 0
+	_tampons_rayon = -1
 	_calculer_cellules_peignables()
 
 	image = Image.create(tex_size.x, tex_size.y, false, Image.FORMAT_RGBA8)
 	image.fill(Color(0, 0, 0, 0))
 	texture = ImageTexture.create_from_image(image)
 	(sprite.material as ShaderMaterial).set_shader_parameter("paint_mask", texture)
+
+	var forme := RectangleShape2D.new()
+	forme.size = Vector2(tex_size)
+	zone_shape.shape = forme
+	zone_shape.position = Vector2.ZERO
 
 
 func _process(_delta: float) -> void:

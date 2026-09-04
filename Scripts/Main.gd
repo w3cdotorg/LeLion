@@ -10,6 +10,7 @@ extends Node2D
 func _ready() -> void:
 	GameState.nouvelle_partie()
 	GameState.partie_terminee.connect(_on_partie_terminee)
+	ville.charger_skyline(load(GameState.niveau().texture))
 	_placer_ville()
 
 
