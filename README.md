@@ -7,6 +7,8 @@ An absurd, deliciously colorful game made with [Godot 4](https://godotengine.org
 
 **Play in your browser: <https://w3cdotorg.github.io/LeLion/>** (deployed by CI on every push to `main`).
 
+A Game Boy Advance port, rewritten in C, lives at [w3cdotorg/lelion-gba](https://github.com/w3cdotorg/lelion-gba).
+
 ![Gameplay screenshot](docs/capture.png)
 
 ![The giant painter in the Village level](docs/boss.png)
