@@ -11,6 +11,7 @@ const COULEUR_COEUR_PERDU := Color(1, 1, 1, 0.15)
 @onready var vies: HBoxContainer = $Marge/Ligne/Vies
 @onready var progression: ProgressBar = $Marge/Ligne/Progression
 @onready var pourcent: Label = $Marge/Ligne/Progression/Pourcent
+@onready var repere_seuil: ColorRect = $Marge/Ligne/Progression/RepereSeuil
 @onready var couleurs: HBoxContainer = $Marge/Ligne/Couleurs
 @onready var chrono: Label = $Marge/Ligne/Chrono
 @onready var indice: Label = $Indice
@@ -44,6 +45,7 @@ func _ready() -> void:
 	GameState.couleur_debloquee.connect(_on_couleur_debloquee)
 	if DisplayServer.is_touchscreen_available():
 		indice.text = "INDICE_TACTILE"
+	_placer_repere_seuil()
 	_on_progression_changee(GameState.progression)
 	for c in GameState.couleurs_debloquees:
 		_on_couleur_debloquee(c)
@@ -68,6 +70,13 @@ func _on_vies_changees(nb: int) -> void:
 	for i in range(_coeurs.size()):
 		_coeurs[i].visible = i < max_difficulte
 		_coeurs[i].modulate = COULEUR_COEUR if i < nb else COULEUR_COEUR_PERDU
+
+
+## Trait jaune sur la barre à la hauteur du pourcentage à atteindre.
+func _placer_repere_seuil() -> void:
+	var x := GameState.seuil_victoire() * progression.size.x
+	repere_seuil.offset_left = x - 1.5
+	repere_seuil.offset_right = x + 1.5
 
 
 func _on_progression_changee(ratio: float) -> void:

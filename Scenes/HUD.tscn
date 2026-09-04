@@ -42,6 +42,15 @@ max_value = 100.0
 step = 0.1
 show_percentage = false
 
+[node name="RepereSeuil" type="ColorRect" parent="Marge/Ligne/Progression"]
+layout_mode = 1
+anchor_bottom = 1.0
+offset_top = -4.0
+offset_right = 3.0
+offset_bottom = 4.0
+mouse_filter = 2
+color = Color(1, 0.85, 0.2, 0.9)
+
 [node name="Pourcent" type="Label" parent="Marge/Ligne/Progression"]
 layout_mode = 1
 anchors_preset = 15

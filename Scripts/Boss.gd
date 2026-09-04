@@ -60,7 +60,7 @@ func _on_body_entered(body: Node2D) -> void:
 
 ## Facteur appliqué aux durées : 1 au début, `acceleration_max` quand la ville est presque peinte.
 func facteur_vitesse() -> float:
-	var avancement: float = clamp(GameState.progression / GameState.SEUIL_VICTOIRE, 0.0, 1.0)
+	var avancement: float = clamp(GameState.progression / GameState.seuil_victoire(), 0.0, 1.0)
 	return lerp(1.0, acceleration_max, avancement)
 
 

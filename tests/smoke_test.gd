@@ -193,6 +193,8 @@ func _run() -> void:
 
 	# Mode Facile : un coup enlève une vie et rend invulnérable un moment
 	_check(GS.vies == 3 and hud._coeurs[2].visible, "mode Facile : 3 vies affichées")
+	_check(abs(GS.seuil_victoire() - 0.85) < 0.001 and abs(hud.repere_seuil.offset_left + 1.5 - 0.85 * hud.progression.size.x) < 2.0,
+		"seuil de victoire 85 %% en Facile, repère placé sur la barre")
 	var coccinelle: Node = spawner.spawn_coccinelle(lion.global_position.y + 66)
 	coccinelle.position.x = lion.global_position.x + 68
 	await _frames(3)
@@ -265,7 +267,7 @@ func _run() -> void:
 			ville.peindre(Vector2(x, haut + y), 45, GS.couleurs_debloquees)
 	ville.mesurer_progression()
 	await _frames(3)
-	_check(GS.progression >= GS.SEUIL_VICTOIRE, "progression >= seuil après avoir tout peint (%.2f)" % GS.progression)
+	_check(GS.progression >= GS.seuil_victoire(), "progression >= seuil après avoir tout peint (%.2f)" % GS.progression)
 	_check(ville.coulures.size() > 0 or ville.CHANCE_COULURE == 0.0, "des coulures de peinture sont en cours (%d)" % ville.coulures.size())
 	_check(not GS.partie_en_cours and paused, "la partie se termine en victoire")
 	overlay = main.get_node_or_null("GameOver")
@@ -348,6 +350,9 @@ func _run() -> void:
 	spawner = main.get_node("Spawner")
 	hud = main.get_node("HUD")
 	_check(GS.vies == 1 and not hud._coeurs[1].visible, "mode Hardcore : un seul cœur affiché")
+	_check(abs(GS.seuil_victoire() - 0.95) < 0.001, "mode Hardcore : 95 %% à peindre")
+	GS.signaler_progression(0.92)
+	_check(GS.partie_en_cours, "92 %% ne suffit pas en Hardcore")
 	_check(spawner._timer_coeur == null, "mode Hardcore : pas de cœurs à ramasser")
 	coccinelle = spawner.spawn_coccinelle(lion.global_position.y + 66)
 	coccinelle.position.x = lion.global_position.x + 68

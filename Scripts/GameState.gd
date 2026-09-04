@@ -13,13 +13,12 @@ const COULEURS_ARC_EN_CIEL: Array[Color] = [
 	Color.RED, Color.ORANGE, Color.YELLOW, Color.GREEN,
 	Color.CYAN, Color.BLUE, Color.VIOLET,
 ]
-const SEUIL_VICTOIRE := 0.85
 const VIES_MAX := 3
 const DUREE_INVULNERABILITE := 1.5
 const DIFFICULTES: Array[Dictionary] = [
-	{"id": "facile", "nom": "DIFF_FACILE", "description": "DIFF_FACILE_DESC", "vies": 3, "pickups_coeur": true},
-	{"id": "moyen", "nom": "DIFF_MOYEN", "description": "DIFF_MOYEN_DESC", "vies": 3, "pickups_coeur": false},
-	{"id": "hardcore", "nom": "DIFF_HARDCORE", "description": "DIFF_HARDCORE_DESC", "vies": 1, "pickups_coeur": false},
+	{"id": "facile", "nom": "DIFF_FACILE", "description": "DIFF_FACILE_DESC", "vies": 3, "pickups_coeur": true, "seuil": 0.85},
+	{"id": "moyen", "nom": "DIFF_MOYEN", "description": "DIFF_MOYEN_DESC", "vies": 3, "pickups_coeur": false, "seuil": 0.90},
+	{"id": "hardcore", "nom": "DIFF_HARDCORE", "description": "DIFF_HARDCORE_DESC", "vies": 1, "pickups_coeur": false, "seuil": 0.95},
 ]
 const NIVEAUX: Array[Dictionary] = [
 	{"id": "skyline", "nom": "NIVEAU_SKYLINE", "texture": "res://Assets/Sprites/skyline_2000px.png"},
@@ -65,6 +64,11 @@ func nouvelle_partie() -> void:
 
 func difficulte() -> Dictionary:
 	return DIFFICULTES[difficulte_courante]
+
+
+## Part de la ville à peindre pour gagner, selon la difficulté.
+func seuil_victoire() -> float:
+	return difficulte().seuil
 
 
 func cle_score() -> String:
@@ -150,7 +154,7 @@ func activer_bonus(duree: float) -> void:
 func signaler_progression(ratio: float) -> void:
 	progression = ratio
 	progression_changee.emit(ratio)
-	if partie_en_cours and ratio >= SEUIL_VICTOIRE:
+	if partie_en_cours and ratio >= seuil_victoire():
 		terminer_partie(true)
 
 

@@ -55,7 +55,7 @@ func _ready() -> void:
 
 ## 0 au début, 1 quand la ville est presque peinte ou après `duree_montee_difficulte`.
 func difficulte() -> float:
-	var par_progression := GameState.progression / GameState.SEUIL_VICTOIRE
+	var par_progression := GameState.progression / GameState.seuil_victoire()
 	var par_temps := GameState.temps_ecoule / duree_montee_difficulte
 	return clamp(max(par_progression, par_temps), 0.0, 1.0)
 
