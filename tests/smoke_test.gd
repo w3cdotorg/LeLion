@@ -48,9 +48,11 @@ func _run() -> void:
 	ev.action = "pause"
 	ev.pressed = true
 	Input.parse_input_event(ev)
+	Input.flush_buffered_events()
 	await _frames(2)
 	_check(paused and main.get_node("HUD").etiquette_pause.visible, "Échap met en pause et affiche PAUSE")
 	Input.parse_input_event(ev)
+	Input.flush_buffered_events()
 	await _frames(2)
 	_check(not paused and not main.get_node("HUD").etiquette_pause.visible, "Échap relance la partie")
 	var nb_cellules: int = ville.grille_taille.x * ville.grille_taille.y
