@@ -28,19 +28,6 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = SubResource("GradientTexture2D_ciel")
 
-[node name="BoutonReglages" type="Button" parent="."]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -260.0
-offset_top = 24.0
-offset_right = -24.0
-offset_bottom = 80.0
-grow_horizontal = 0
-theme_override_font_sizes/font_size = 26
-text = "REGLAGES"
-
 [node name="Centre" type="CenterContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
@@ -122,6 +109,19 @@ theme_override_colors/font_color = Color(1, 1, 1, 0.6)
 theme_override_font_sizes/font_size = 22
 text = "AIDE_CONTROLES"
 horizontal_alignment = 1
+
+[node name="BoutonReglages" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -260.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = 80.0
+grow_horizontal = 0
+theme_override_font_sizes/font_size = 26
+text = "REGLAGES"
 
 [connection signal="pressed" from="BoutonReglages" to="." method="ouvrir_reglages"]
 [connection signal="pressed" from="Centre/Colonne/Jouer" to="." method="jouer"]

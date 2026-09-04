@@ -56,10 +56,21 @@ func _run() -> void:
 	titre.choisir_difficulte(0)
 	_check(tr("PAS_ENCORE_PEINT") in titre.boutons[1].text, "un niveau jamais gagné affiche « pas encore peint »")
 	_check(tr("NIVEAU_METROPOLE") in titre.boutons[1].text and tr("DIFF_FACILE") in titre.boutons_difficulte[0].text, "l'écran titre affiche les noms traduits")
-	titre.ouvrir_reglages()
-	await _frames(1)
+	# Clic souris réel sur le bouton Réglages (il doit être au-dessus du conteneur central)
+	var centre_bouton: Vector2 = titre.bouton_reglages.get_global_rect().get_center()
+	for presse in [true, false]:
+		var clic := InputEventMouseButton.new()
+		clic.button_index = MOUSE_BUTTON_LEFT
+		clic.pressed = presse
+		clic.position = centre_bouton
+		clic.global_position = centre_bouton
+		if presse:
+			clic.button_mask = MOUSE_BUTTON_MASK_LEFT
+		root.push_input(clic, true)  # coordonnées du viewport, pas de la fenêtre
+		await process_frame
+	await process_frame
 	var reglages: Node = titre.get_node_or_null("Reglages")
-	_check(reglages != null and reglages.musique.has_focus(), "le bouton Réglages ouvre l'écran de réglages")
+	_check(reglages != null and reglages.musique.has_focus(), "un clic souris sur Réglages ouvre l'écran de réglages")
 	reglages._choisir_langue("en")
 	await _frames(1)
 	_check(params.langue == "en" and "Metropolis" in titre.boutons[1].text, "changer la langue retraduit l'écran titre")
