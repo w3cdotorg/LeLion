@@ -24,6 +24,8 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
+	Audio.demarrer_musique("boss" if GameState.niveau().get("boss", false) else "ville", 0)
+	GameState.progression_changee.connect(_on_progression_changee)
 	GameState.partie_terminee.connect(_on_partie_terminee)
 	GameState.lion_touche.connect(func(_o: Vector2) -> void: trembler())
 	ville.charger_skyline(load(GameState.niveau().texture))
@@ -44,6 +46,11 @@ func _process(delta: float) -> void:
 	camera.offset = Vector2(randf_range(-1, 1), randf_range(-1, 1)) * intensite
 	if _tremblement_restant == 0.0:
 		camera.offset = Vector2.ZERO
+
+
+## La musique gagne une couche par tiers du chemin vers la victoire.
+func _on_progression_changee(ratio: float) -> void:
+	Audio.definir_intensite(int(ratio / GameState.seuil_victoire() * 3.0))
 
 
 func trembler() -> void:

@@ -136,7 +136,16 @@ func _run() -> void:
 	await _frames(1)
 	_check(GS.pret, "demarrer() rend le jeu prêt")
 	_check(root.get_node_or_null("Audio") != null, "autoload Audio présent")
-	_check(root.get_node("Audio")._musique.playing, "la musique tourne en boucle")
+	var audio: Node = root.get_node("Audio")
+	_check(audio._musique.playing and audio._pistes[1].playing and audio._pistes[2].playing, "les trois pistes de musique tournent ensemble")
+	_check(audio.ensemble_courant == "ville" and audio.intensite == 0, "en jeu, thème de la ville avec la base seule")
+	_check(audio._pistes[2].volume_db < -60.0, "la mélodie est muette au départ")
+	GS.signaler_progression(0.5)
+	_check(audio.intensite == 1, "à mi-chemin, les arpèges entrent")
+	GS.signaler_progression(0.6)
+	_check(audio.intensite == 2, "aux deux tiers, la mélodie entre")
+	GS.signaler_progression(0.0)
+	audio.definir_intensite(0, true)
 
 	# Contrôles tactiles : cachés sans écran tactile, le stick pilote les actions
 	var tactile: CanvasLayer = main.get_node("ControlesTactiles")
@@ -338,6 +347,7 @@ func _run() -> void:
 	lion = main.get_node("Lion")
 	var boss: Node = get_first_node_in_group("boss")
 	_check(boss != null, "le niveau Village fait apparaître le boss")
+	_check(root.get_node("Audio").ensemble_courant == "boss", "le Village joue le thème du boss")
 	_check(main.get_node("Spawner")._facteur_ennemis == 2.0, "les autres ennemis sont deux fois moins fréquents avec un boss")
 	var nb_polygones := 0
 	for enfant in boss.get_children():

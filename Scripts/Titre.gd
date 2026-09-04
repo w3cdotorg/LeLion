@@ -17,6 +17,7 @@ var boutons: Array[Button] = []
 
 func _ready() -> void:
 	get_tree().paused = false
+	Audio.demarrer_musique("ville", 1)
 	GameState.quitter_arcade()
 	GameState.difficulte_courante = clamp(int(Scores.preference("difficulte", GameState.difficulte_courante)), 0, GameState.DIFFICULTES.size() - 1)
 	GameState.niveau_courant = clamp(int(Scores.preference("niveau", GameState.niveau_courant)), 0, GameState.NIVEAUX.size() - 1)

@@ -60,7 +60,7 @@ Scripts/    one script per scene + autoloads GameState (game, lives, levels, dif
 Shaders/    Ville.gdshader: applies the paint mask to the skyline
 Assets/     Sprites (used), Sons (generated), Traductions (CSV → .translation), src (reference material, ignored by Godot)
 tests/      smoke_test.gd (headless) and screenshots.gd (scripted captures)
-tools/      generer_sons.py (effects), generer_musique.py (chiptune loop), generer_skylines.py (skylines, sprites)
+tools/      generer_sons.py (effects), generer_musique.py (layered chiptune, town + boss themes), generer_skylines.py (skylines, sprites)
 ```
 
 The paint is an RGBA mask the size of the skyline, stamped through a native blit wherever the
