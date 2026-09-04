@@ -52,6 +52,7 @@ func _run() -> void:
 
 	# Écran titre : un bouton par niveau, lancer un niveau le sélectionne
 	var titre: Control = load("res://Scenes/Titre.tscn").instantiate()
+	titre.demo_autorisee = false
 	root.add_child(titre)
 	await _frames(1)
 	_check(titre.boutons.size() == GS.NIVEAUX.size(), "l'écran titre a un bouton par niveau (%d)" % titre.boutons.size())
@@ -93,6 +94,7 @@ func _run() -> void:
 	GS.difficulte_courante = 0
 	GS.niveau_courant = 0
 	titre = load("res://Scenes/Titre.tscn").instantiate()
+	titre.demo_autorisee = false
 	root.add_child(titre)
 	await _frames(1)
 	_check(GS.difficulte_courante == 2 and titre.boutons_difficulte[2].button_pressed, "l'écran titre restaure la difficulté sauvegardée")
@@ -425,6 +427,48 @@ func _run() -> void:
 	_check(overlay != null and overlay._lignes[-1].cible == 430, "le bilan affiche le temps total")
 	scores.effacer()
 	GS.quitter_arcade()
+
+	# Attract mode : inactivité sur le titre → démo pilotée, toute touche en sort
+	titre = load("res://Scenes/Titre.tscn").instantiate()
+	titre.demo_autorisee = false
+	root.add_child(titre)
+	await _frames(1)
+	titre.demo_autorisee = true
+	titre.inactivite = titre.DELAI_DEMO
+	var difficulte_avant: int = GS.difficulte_courante
+	# on empêche le changement de scène en interceptant : lancer_demo(false) est l'équivalent testable
+	titre.demo_autorisee = false
+	titre.lancer_demo(false)
+	_check(GS.demo and GS.difficulte_courante == 0, "l'inactivité lance la démo en Facile")
+	titre.free()
+	paused = false
+	main.queue_free()
+	await _frames(2)
+	GS.niveau_courant = 0
+	main = load("res://Scenes/Main.tscn").instantiate()
+	root.add_child(main)
+	current_scene = main
+	await _frames(2)
+	main.get_node("Intro").queue_free()
+	GS.demarrer()
+	await _frames(1)
+	_check(main.get_node_or_null("Pilote") != null and main.get_node_or_null("Demo") != null, "en démo, le pilote et l'étiquette DÉMO sont là")
+	lion = main.get_node("Lion")
+	spawner = main.get_node("Spawner")
+	spawner.spawn_pickup(0, Vector2(1200, 250))
+	await _frames(10)
+	_check(lion.pilote_direction.length() > 0.9 and lion._vitesse.length() > 0.0, "le pilote dirige le lion vers la pastille")
+	var soucoupe3: Node = spawner.spawn_soucoupe(lion.global_position.y + 66)
+	soucoupe3.position.x = lion.global_position.x + 250
+	await _frames(2)
+	_check(lion.pilote_direction.x < 0.0, "le pilote fuit un ennemi proche")
+	soucoupe3.queue_free()
+	Input.action_press("deplacer_droite")
+	await _frames(2)
+	Input.action_release("deplacer_droite")
+	main.quitter_demo(false)
+	_check(not GS.demo, "quitter la démo rend la main")
+	GS.difficulte_courante = difficulte_avant
 
 	# Hardcore : un seul coup
 	paused = false

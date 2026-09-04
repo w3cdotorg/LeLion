@@ -3,6 +3,7 @@ extends Control
 ## Les niveaux affichent le record pour la difficulté choisie.
 
 const SCENE_JEU := "res://Scenes/Main.tscn"
+const DELAI_DEMO := 20.0
 const SCENE_REGLAGES := preload("res://Scenes/Reglages.tscn")
 
 @onready var difficultes: HBoxContainer = $Centre/Colonne/RangeeDifficulte/Difficultes
@@ -13,12 +14,15 @@ const SCENE_REGLAGES := preload("res://Scenes/Reglages.tscn")
 
 var boutons_difficulte: Array[Button] = []
 var boutons: Array[Button] = []
+var inactivite := 0.0
+var demo_autorisee := true
 
 
 func _ready() -> void:
 	get_tree().paused = false
 	Audio.demarrer_musique("ville", 1)
 	GameState.quitter_arcade()
+	GameState.demo = false
 	GameState.difficulte_courante = clamp(int(Scores.preference("difficulte", GameState.difficulte_courante)), 0, GameState.DIFFICULTES.size() - 1)
 	GameState.niveau_courant = clamp(int(Scores.preference("niveau", GameState.niveau_courant)), 0, GameState.NIVEAUX.size() - 1)
 
@@ -38,6 +42,32 @@ func _ready() -> void:
 	choisir_difficulte(GameState.difficulte_courante)
 	choisir_niveau(GameState.niveau_courant)
 	bouton_jouer.grab_focus()
+
+
+## Attract mode : sans action pendant DELAI_DEMO secondes, le jeu se lance en démo.
+func _process(delta: float) -> void:
+	if not demo_autorisee or get_node_or_null("Reglages") != null:
+		inactivite = 0.0
+		return
+	inactivite += delta
+	if inactivite >= DELAI_DEMO:
+		lancer_demo()
+
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion and event.relative.length() < 2.0:
+		return
+	inactivite = 0.0
+
+
+func lancer_demo(changer_scene := true) -> void:
+	inactivite = 0.0
+	GameState.demo = true
+	GameState.quitter_arcade()
+	GameState.difficulte_courante = 0
+	GameState.niveau_courant = randi() % GameState.NIVEAUX.size()
+	if changer_scene:
+		get_tree().change_scene_to_file(SCENE_JEU)
 
 
 func _bouton_choix(taille: Vector2, taille_police: int) -> Button:

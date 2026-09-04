@@ -29,6 +29,8 @@ const BOUCHE_X_GAUCHE := 47.0
 
 var est_en_train_de_vomir := false
 var direction_du_lion: int = 1  # 1 = droite, -1 = gauche
+var pilote_direction := Vector2.ZERO  # attract mode
+var pilote_vomir := false
 var _vitesse := Vector2.ZERO
 var _recul := Vector2.ZERO
 var _temps := 0.0
@@ -44,7 +46,7 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	_temps += delta
-	var input_vector := Input.get_vector("deplacer_gauche", "deplacer_droite", "deplacer_haut", "deplacer_bas") if GameState.pret else Vector2.ZERO
+	var input_vector := _direction_voulue()
 
 	if input_vector.x != 0:
 		var nouvelle_direction := 1 if input_vector.x > 0 else -1
@@ -65,11 +67,25 @@ func _physics_process(delta: float) -> void:
 
 
 func _process(_delta: float) -> void:
-	if Input.is_action_pressed("vomir") and GameState.pret:
+	if _veut_vomir():
 		if not est_en_train_de_vomir:
 			demarrer_vomi()
 	elif est_en_train_de_vomir:
 		arreter_vomi()
+
+
+func _direction_voulue() -> Vector2:
+	if not GameState.pret:
+		return Vector2.ZERO
+	if GameState.demo:
+		return pilote_direction
+	return Input.get_vector("deplacer_gauche", "deplacer_droite", "deplacer_haut", "deplacer_bas")
+
+
+func _veut_vomir() -> bool:
+	if not GameState.pret:
+		return false
+	return pilote_vomir if GameState.demo else Input.is_action_pressed("vomir")
 
 
 func _on_couleur_debloquee(_couleur: Color) -> void:

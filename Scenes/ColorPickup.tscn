@@ -6,7 +6,7 @@
 [sub_resource type="CircleShape2D" id="CircleShape2D_gk2im"]
 radius = 28.0
 
-[node name="ColorPickup" type="Area2D"]
+[node name="ColorPickup" type="Area2D" groups=["pickup"]]
 script = ExtResource("2_68htu")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]

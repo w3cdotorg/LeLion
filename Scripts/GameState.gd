@@ -36,6 +36,7 @@ var pret := false  # false pendant l'intro « Prêt ? Vomissez ! »
 var niveau_courant := 0
 var difficulte_courante := 0
 var mode_arcade := false
+var demo := false  # attract mode : le jeu se joue tout seul
 var etape_arcade := 0
 var temps_arcade := 0.0  # somme des temps des stages gagnés
 var vies := 3

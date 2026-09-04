@@ -29,6 +29,16 @@ over when he retreats.
 A rainbow star appears from time to time: grab it to double the width of your spew for eight
 seconds.
 
+**Arcade** (top-left button) chains the nine stages: the three levels on Easy, then Normal,
+then Hardcore, with a cumulated time and its own best time. Every stage opens on a
+"READY? VOMIT!" intro, and a defeat brings up an arcade-style "CONTINUE?" countdown: press
+the puke button to retry, or let it run out to see the summary.
+
+Leave the title screen alone for twenty seconds and the game plays itself (attract mode);
+any key or tap brings the title back. The chiptune soundtrack is layered: the arpeggios join
+in at a third of the way to victory, the melody at two thirds, and the Village level has its own
+minor-key theme for the painter.
+
 | Action | Keyboard | Gamepad | Touch screen |
 |---|---|---|---|
 | Move | Arrows, WASD / ZQSD | Left stick, D-pad | Virtual stick: put your thumb on the left half |
@@ -53,12 +63,13 @@ godot .
 ## Project layout
 
 ```
-Scenes/     Titre (title), Main (a game), Lion, Ville (town), HUD, PauseMenu, Reglages (settings),
-            ControlesTactiles (touch controls), GameOver, ColorPickup, BonusPickup, CoeurPickup,
-            Soucoupe, Coccinelle, Boss
-Scripts/    one script per scene + autoloads GameState (game, lives, levels, difficulties),
-            Scores (records, preferences), Parametres (settings), Audio (sounds, music)
-Shaders/    Ville.gdshader: applies the paint mask to the skyline
+Scenes/     Titre (title), Main (a game), Intro (READY? VOMIT!), Lion, Ville (town), HUD, PauseMenu,
+            Reglages (settings), ControlesTactiles (touch controls), GameOver (CONTINUE? + summary),
+            ColorPickup, BonusPickup, CoeurPickup, Soucoupe, Coccinelle, Boss
+Scripts/    one script per scene + Pilote (attract-mode autopilot) + autoloads GameState (game, lives,
+            levels, difficulties, arcade), Scores (records, preferences), Parametres (settings, CRT layer),
+            Audio (sounds, layered music)
+Shaders/    Ville.gdshader (paint mask on the skyline), Crt.gdshader (optional CRT filter)
 Assets/     Sprites (used), Sons (generated), Traductions (CSV → .translation), src (reference material, ignored by Godot)
 tests/      smoke_test.gd (headless) and screenshots.gd (scripted captures)
 tools/      generer_sons.py (effects), generer_musique.py (layered chiptune, town + boss themes), generer_skylines.py (skylines, sprites)
