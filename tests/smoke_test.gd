@@ -93,6 +93,9 @@ func _run() -> void:
 	GS.niveau_courant = 0
 
 	# Scores
+	_check(scores.enregistrer("skyline/facile", 50.0) == 0 and scores.meilleur_temps("metropole/facile") < 0.0
+		and scores.meilleur_temps("skyline/moyen") < 0.0, "un record ne compte que pour son niveau et sa difficulté")
+	scores.effacer()
 	_check(scores.enregistrer("test", 90.0) == 0, "premier temps enregistré = record")
 	_check(scores.enregistrer("test", 120.0) == 1, "temps plus lent = rang 1")
 	_check(scores.enregistrer("test", 60.0) == 0, "temps plus rapide = nouveau record")
@@ -246,13 +249,21 @@ func _run() -> void:
 	current_scene = main
 	await _frames(2)
 	_check(Input.get_action_strength("deplacer_droite") == 0.0, "une nouvelle partie démarre avec les actions relâchées")
+	_check(GS.couleurs_debloquees.is_empty() and main.get_node("Lion").vomi_container.get_child_count() == 0
+		and main.get_node("HUD")._pastilles[0].color == main.get_node("HUD").COULEUR_VERROUILLEE,
+		"une nouvelle partie repart sans couleur : ni émetteur, ni pastille allumée")
 	ville = main.get_node("Ville")
 	_check(ville.tex_size == Vector2i(2000, 320), "la ville a chargé la skyline du niveau Métropole (%s)" % ville.tex_size)
 	GS.debloquer_couleur(0)
 	var haut: float = ville.position.y - ville.tex_size.y / 2.0
+	# un seul tampon clairsemé ne suffit pas : la couverture réelle est mesurée
+	ville.peindre(Vector2(1000, haut + 200), 45, GS.couleurs_debloquees)
+	ville.mesurer_progression()
+	_check(GS.progression < 0.01, "un tampon isolé ne compte presque pas (couverture %.3f)" % GS.progression)
 	for x in range(0, ville.tex_size.x, 40):
 		for y in range(0, ville.tex_size.y, 40):
 			ville.peindre(Vector2(x, haut + y), 45, GS.couleurs_debloquees)
+	ville.mesurer_progression()
 	await _frames(3)
 	_check(GS.progression >= GS.SEUIL_VICTOIRE, "progression >= seuil après avoir tout peint (%.2f)" % GS.progression)
 	_check(ville.coulures.size() > 0 or ville.CHANCE_COULURE == 0.0, "des coulures de peinture sont en cours (%d)" % ville.coulures.size())

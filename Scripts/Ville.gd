@@ -1,7 +1,9 @@
 extends Node2D
 ## La ville : masque de peinture RGBA appliqué par shader sur la skyline.
-## La peinture se fait par tampons multicolores (blit natif). La progression est
-## comptée sur une grille de cellules ne couvrant que les zones opaques de la skyline.
+## La peinture se fait par tampons multicolores (blit natif). La progression est mesurée
+## sur une grille de cellules couvrant les zones opaques de la skyline : une cellule compte
+## quand au moins COUVERTURE_CELLULE de sa surface est réellement peinte (mesure par
+## réduction du masque, à intervalle régulier).
 
 const TAILLE_CELLULE := 8
 const NB_TAMPONS := 4
@@ -9,6 +11,8 @@ const DENSITE_TAMPON := 0.5
 const CHANCE_COULURE := 0.3
 const COULURES_MAX := 40
 const VITESSE_COULURE := 70.0  # px/s
+const INTERVALLE_MESURE := 0.2  # s
+const COUVERTURE_CELLULE := 0.4
 
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var zone_shape: CollisionShape2D = $PeintureZone/CollisionShape2D
@@ -21,7 +25,8 @@ var grille_taille: Vector2i
 var cellules_peignables := 0
 var cellules_peintes := 0
 var _cellules_peignables: PackedByteArray
-var _cellules_peintes: PackedByteArray
+var _a_mesurer := false
+var _temps_mesure := 0.0
 
 var _dirty := false
 var coulures: Array[Dictionary] = []
@@ -59,8 +64,27 @@ func _process(delta: float) -> void:
 	_avancer_coulures(delta)
 	if _dirty:
 		_dirty = false
+		_a_mesurer = true
 		texture.update(image)
-		GameState.signaler_progression(progression())
+	_temps_mesure += delta
+	if _a_mesurer and _temps_mesure >= INTERVALLE_MESURE:
+		_temps_mesure = 0.0
+		_a_mesurer = false
+		mesurer_progression()
+
+
+## Réduit le masque à la grille : l'alpha moyen d'une cellule est sa couverture peinte.
+func mesurer_progression() -> float:
+	var reduite: Image = image.duplicate()
+	reduite.resize(grille_taille.x, grille_taille.y, Image.INTERPOLATE_TRILINEAR)
+	cellules_peintes = 0
+	for cy in range(grille_taille.y):
+		for cx in range(grille_taille.x):
+			if _cellules_peignables[cy * grille_taille.x + cx] == 1 \
+					and reduite.get_pixel(cx, cy).a >= COUVERTURE_CELLULE:
+				cellules_peintes += 1
+	GameState.signaler_progression(progression())
+	return progression()
 
 
 func progression() -> float:
@@ -72,8 +96,6 @@ func _calculer_cellules_peignables() -> void:
 	grille_taille = Vector2i(ceili(tex_size.x / float(TAILLE_CELLULE)), ceili(tex_size.y / float(TAILLE_CELLULE)))
 	var nb := grille_taille.x * grille_taille.y
 	_cellules_peignables.resize(nb)
-	_cellules_peintes.resize(nb)
-	_cellules_peintes.fill(0)
 
 	var source: Image = sprite.texture.get_image()
 	if source == null:
@@ -105,7 +127,6 @@ func peindre(position_globale: Vector2, rayon: int, couleurs: Array[Color]) -> v
 	var tampon := _tampons[randi() % _tampons.size()]
 	var taille := tampon.get_width()
 	image.blit_rect_mask(tampon, tampon, Rect2i(0, 0, taille, taille), Vector2i(px - rayon, py - rayon))
-	_marquer_cellules(px, py, rayon)
 	if coulures.size() < COULURES_MAX and randf() < CHANCE_COULURE:
 		var c := couleurs[randi() % couleurs.size()]
 		c.a = 1.0
@@ -135,24 +156,6 @@ func _avancer_coulures(delta: float) -> void:
 	coulures = restantes
 	_dirty = true
 
-
-func _marquer_cellules(px: int, py: int, rayon: int) -> void:
-	var r_effectif := rayon * 0.8
-	var r2 := r_effectif * r_effectif
-	var cx_min: int = max(0, (px - rayon) / TAILLE_CELLULE)
-	var cx_max: int = min(grille_taille.x - 1, (px + rayon) / TAILLE_CELLULE)
-	var cy_min: int = max(0, (py - rayon) / TAILLE_CELLULE)
-	var cy_max: int = min(grille_taille.y - 1, (py + rayon) / TAILLE_CELLULE)
-	for cy in range(cy_min, cy_max + 1):
-		var dy := (cy + 0.5) * TAILLE_CELLULE - py
-		for cx in range(cx_min, cx_max + 1):
-			var dx := (cx + 0.5) * TAILLE_CELLULE - px
-			if dx * dx + dy * dy > r2:
-				continue
-			var i := cy * grille_taille.x + cx
-			if _cellules_peignables[i] == 1 and _cellules_peintes[i] == 0:
-				_cellules_peintes[i] = 1
-				cellules_peintes += 1
 
 
 ## Régénère les tampons quand le rayon ou le nombre de couleurs change.

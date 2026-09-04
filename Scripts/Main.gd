@@ -16,10 +16,14 @@ var _tremblement_restant := 0.0
 const ACTIONS_DE_JEU := ["deplacer_gauche", "deplacer_droite", "deplacer_haut", "deplacer_bas", "vomir"]
 
 
-func _ready() -> void:
+## Avant les _ready des enfants : le lion et le HUD lisent l'état de partie en se construisant.
+func _enter_tree() -> void:
 	for action in ACTIONS_DE_JEU:
 		Input.action_release(action)
 	GameState.nouvelle_partie()
+
+
+func _ready() -> void:
 	GameState.partie_terminee.connect(_on_partie_terminee)
 	GameState.lion_touche.connect(func(_o: Vector2) -> void: trembler())
 	ville.charger_skyline(load(GameState.niveau().texture))
