@@ -5,12 +5,16 @@ extends Node
 @export var color_pickup_scene: PackedScene = preload("res://Scenes/ColorPickup.tscn")
 @export var soucoupe_scene: PackedScene = preload("res://Scenes/Soucoupe.tscn")
 @export var coccinelle_scene: PackedScene = preload("res://Scenes/Coccinelle.tscn")
+@export var bonus_scene: PackedScene = preload("res://Scenes/BonusPickup.tscn")
 
 @export_group("Pickups")
 @export var delai_premier_pickup := 1.0
 @export var delai_entre_pickups := 6.0
 @export var zone_pickups := Rect2(150, 80, 1700, 300)
 @export var distance_min_du_lion := 300.0
+@export var delai_premier_bonus := 20.0
+@export var intervalle_bonus := Vector2(25.0, 35.0)  # min, max
+@export var couleurs_requises_bonus := 2
 
 @export_group("Ennemis")
 @export var zone_y_ennemis := Vector2(120, 480)
@@ -21,6 +25,7 @@ extends Node
 
 var _timer_soucoupe: Timer
 var _timer_coccinelle: Timer
+var _timer_bonus: Timer
 
 
 func _ready() -> void:
@@ -29,8 +34,10 @@ func _ready() -> void:
 	_programmer(delai_premier_pickup, _spawn_prochain_pickup)
 	_timer_soucoupe = _creer_timer(_on_timer_soucoupe)
 	_timer_coccinelle = _creer_timer(_on_timer_coccinelle)
+	_timer_bonus = _creer_timer(_on_timer_bonus)
 	_timer_soucoupe.start(intervalle_soucoupe.x * 0.5)
 	_timer_coccinelle.start(intervalle_coccinelle.x * 0.8)
+	_timer_bonus.start(delai_premier_bonus)
 
 
 ## 0 au début, 1 quand la ville est presque peinte ou après `duree_montee_difficulte`.
@@ -59,6 +66,7 @@ func _programmer(delai: float, action: Callable) -> void:
 func _on_partie_terminee(_victoire: bool) -> void:
 	_timer_soucoupe.stop()
 	_timer_coccinelle.stop()
+	_timer_bonus.stop()
 
 
 func _on_timer_soucoupe() -> void:
@@ -69,6 +77,21 @@ func _on_timer_soucoupe() -> void:
 func _on_timer_coccinelle() -> void:
 	spawn_coccinelle()
 	_timer_coccinelle.start(_intervalle(intervalle_coccinelle))
+
+
+func _on_timer_bonus() -> void:
+	if GameState.couleurs_debloquees.size() >= couleurs_requises_bonus and not GameState.bonus_actif():
+		spawn_bonus(_position_pickup_aleatoire())
+		_timer_bonus.start(randf_range(intervalle_bonus.x, intervalle_bonus.y))
+	else:
+		_timer_bonus.start(5.0)
+
+
+func spawn_bonus(position_bonus: Vector2) -> Node:
+	var bonus := bonus_scene.instantiate()
+	bonus.global_position = position_bonus
+	get_parent().add_child(bonus)
+	return bonus
 
 
 func _on_couleur_debloquee(_couleur: Color) -> void:

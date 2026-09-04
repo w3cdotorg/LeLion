@@ -5,6 +5,7 @@ extends Node
 signal couleur_debloquee(couleur: Color)
 signal progression_changee(ratio: float)
 signal partie_terminee(victoire: bool)
+signal bonus_change(actif: bool)
 
 const COULEURS_ARC_EN_CIEL: Array[Color] = [
 	Color.RED, Color.ORANGE, Color.YELLOW, Color.GREEN,
@@ -22,17 +23,25 @@ var progression := 0.0
 var temps_ecoule := 0.0
 var partie_en_cours := false
 var niveau_courant := 0
+var bonus_restant := 0.0
 
 
 func _process(delta: float) -> void:
-	if partie_en_cours:
-		temps_ecoule += delta
+	if not partie_en_cours:
+		return
+	temps_ecoule += delta
+	if bonus_restant > 0.0:
+		bonus_restant -= delta
+		if bonus_restant <= 0.0:
+			bonus_restant = 0.0
+			bonus_change.emit(false)
 
 
 func nouvelle_partie() -> void:
 	couleurs_debloquees.clear()
 	progression = 0.0
 	temps_ecoule = 0.0
+	bonus_restant = 0.0
 	partie_en_cours = true
 
 
@@ -71,6 +80,18 @@ func debloquer_couleur(index: int) -> bool:
 func prochain_index_couleur() -> int:
 	var i := couleurs_debloquees.size()
 	return i if i < COULEURS_ARC_EN_CIEL.size() else -1
+
+
+func bonus_actif() -> bool:
+	return bonus_restant > 0.0
+
+
+## Active (ou prolonge) la gerbe XXL pour `duree` secondes.
+func activer_bonus(duree: float) -> void:
+	var etait_actif := bonus_actif()
+	bonus_restant = max(bonus_restant, duree)
+	if not etait_actif:
+		bonus_change.emit(true)
 
 
 func signaler_progression(ratio: float) -> void:

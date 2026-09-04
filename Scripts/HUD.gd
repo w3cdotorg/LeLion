@@ -10,6 +10,7 @@ const COULEUR_VERROUILLEE := Color(1, 1, 1, 0.15)
 @onready var chrono: Label = $Marge/Ligne/Chrono
 @onready var indice: Label = $Indice
 @onready var etiquette_pause: Label = $Pause
+@onready var etiquette_bonus: Label = $Marge/Ligne/Bonus
 
 var _pastilles: Array[ColorRect] = []
 
@@ -31,6 +32,9 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	chrono.text = GameState.formater_temps(GameState.temps_ecoule)
+	etiquette_bonus.visible = GameState.bonus_actif()
+	if etiquette_bonus.visible:
+		etiquette_bonus.text = "★ GERBE XXL %d s" % ceili(GameState.bonus_restant)
 
 
 func _unhandled_input(event: InputEvent) -> void:

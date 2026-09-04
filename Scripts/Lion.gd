@@ -10,6 +10,7 @@ const GRAVITE_GERBE := 300.0
 const DUREE_GERBE := 0.6
 const PARTICULES_PAR_COULEUR := 400
 const RAYON_TRACEUSE := Vector2i(16, 46)  # min, max
+const FACTEUR_BONUS := 2.0
 const TEXTURE_PARTICULE := preload("res://Assets/Sprites/circle_white.png")
 const BOUCHE_X_DROITE := 89.0
 const BOUCHE_X_GAUCHE := 47.0
@@ -29,6 +30,7 @@ var direction_du_lion: int = 1  # 1 = droite, -1 = gauche
 
 func _ready() -> void:
 	GameState.couleur_debloquee.connect(_on_couleur_debloquee)
+	GameState.bonus_change.connect(_on_bonus_change)
 	_appliquer_direction()
 	mettre_a_jour_degrade_vomi()
 
@@ -63,6 +65,23 @@ func _on_couleur_debloquee(_couleur: Color) -> void:
 	mettre_a_jour_degrade_vomi()
 
 
+func _on_bonus_change(_actif: bool) -> void:
+	_placer_traceuse()
+	_appliquer_taille_particules()
+
+
+func _facteur_bonus() -> float:
+	return FACTEUR_BONUS if GameState.bonus_actif() else 1.0
+
+
+func _appliquer_taille_particules() -> void:
+	for emitter in vomi_container.get_children():
+		var mat := emitter.process_material as ParticleProcessMaterial
+		if mat != null:
+			mat.scale_min = 0.6 * _facteur_bonus()
+			mat.scale_max = 1.4 * _facteur_bonus()
+
+
 ## Retourne le sprite, déplace la bouche et réoriente gerbe et traceuse.
 func _appliquer_direction() -> void:
 	sprite.scale.x = direction_du_lion
@@ -90,7 +109,8 @@ func _placer_traceuse() -> void:
 	gerbe_traceuse.position = _point_de_chute()
 	if traceuse_shape.shape is CircleShape2D:
 		var n := GameState.couleurs_debloquees.size()
-		traceuse_shape.shape.radius = clamp(RAYON_TRACEUSE.x + n * 5, RAYON_TRACEUSE.x, RAYON_TRACEUSE.y)
+		var rayon: float = clamp(RAYON_TRACEUSE.x + n * 5, RAYON_TRACEUSE.x, RAYON_TRACEUSE.y)
+		traceuse_shape.shape.radius = rayon * _facteur_bonus()
 
 
 func _orienter_emetteurs() -> void:
@@ -122,8 +142,8 @@ func mettre_a_jour_degrade_vomi() -> void:
 		material.initial_velocity_min = VITESSE_GERBE * 0.9
 		material.initial_velocity_max = VITESSE_GERBE * 1.1
 		material.gravity = Vector3(0, GRAVITE_GERBE, 0)
-		material.scale_min = 0.6
-		material.scale_max = 1.4
+		material.scale_min = 0.6 * _facteur_bonus()
+		material.scale_max = 1.4 * _facteur_bonus()
 
 		var emitter := GPUParticles2D.new()
 		emitter.texture = TEXTURE_PARTICULE

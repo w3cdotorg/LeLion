@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://dlelionbonus0"]
+
+[ext_resource type="Texture2D" path="res://Assets/Sprites/etoile.png" id="1_etoile"]
+[ext_resource type="Script" path="res://Scripts/BonusPickup.gd" id="2_bonus"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_bonus"]
+radius = 34.0
+
+[node name="BonusPickup" type="Area2D"]
+script = ExtResource("2_bonus")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(1.2, 1.2)
+texture = ExtResource("1_etoile")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_bonus")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
