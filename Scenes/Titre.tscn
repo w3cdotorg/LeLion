@@ -28,6 +28,19 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = SubResource("GradientTexture2D_ciel")
 
+[node name="BoutonReglages" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -260.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = 80.0
+grow_horizontal = 0
+theme_override_font_sizes/font_size = 26
+text = "REGLAGES"
+
 [node name="Centre" type="CenterContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
@@ -38,44 +51,77 @@ grow_vertical = 2
 
 [node name="Colonne" type="VBoxContainer" parent="Centre"]
 layout_mode = 2
-theme_override_constants/separation = 18
+theme_override_constants/separation = 16
 alignment = 1
 
 [node name="Logo" type="Label" parent="Centre/Colonne"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
-theme_override_font_sizes/font_size = 140
+theme_override_font_sizes/font_size = 130
 text = "LeLion"
 horizontal_alignment = 1
 
 [node name="Accroche" type="Label" parent="Centre/Colonne"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 28
 text = "ACCROCHE"
 horizontal_alignment = 1
 
-[node name="Difficultes" type="HBoxContainer" parent="Centre/Colonne"]
+[node name="Espace1" type="Control" parent="Centre/Colonne"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+
+[node name="RangeeDifficulte" type="HBoxContainer" parent="Centre/Colonne"]
 layout_mode = 2
 theme_override_constants/separation = 16
-alignment = 1
 
-[node name="Niveaux" type="HBoxContainer" parent="Centre/Colonne"]
+[node name="Etiquette" type="Label" parent="Centre/Colonne/RangeeDifficulte"]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
-theme_override_constants/separation = 24
-alignment = 1
+theme_override_colors/font_color = Color(1, 1, 1, 0.75)
+theme_override_font_sizes/font_size = 30
+text = "DIFFICULTE"
+horizontal_alignment = 2
+vertical_alignment = 1
 
-[node name="BoutonReglages" type="Button" parent="Centre/Colonne"]
-custom_minimum_size = Vector2(240, 56)
+[node name="Difficultes" type="HBoxContainer" parent="Centre/Colonne/RangeeDifficulte"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="RangeeNiveau" type="HBoxContainer" parent="Centre/Colonne"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Etiquette" type="Label" parent="Centre/Colonne/RangeeNiveau"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.75)
+theme_override_font_sizes/font_size = 30
+text = "NIVEAU"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Niveaux" type="HBoxContainer" parent="Centre/Colonne/RangeeNiveau"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Espace2" type="Control" parent="Centre/Colonne"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+
+[node name="Jouer" type="Button" parent="Centre/Colonne"]
+custom_minimum_size = Vector2(360, 76)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 26
-text = "REGLAGES"
+theme_override_font_sizes/font_size = 40
+text = "JOUER"
 
 [node name="Aide" type="Label" parent="Centre/Colonne"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 0.7)
+theme_override_colors/font_color = Color(1, 1, 1, 0.6)
 theme_override_font_sizes/font_size = 22
 text = "AIDE_CONTROLES"
 horizontal_alignment = 1
 
-[connection signal="pressed" from="Centre/Colonne/BoutonReglages" to="." method="ouvrir_reglages"]
+[connection signal="pressed" from="BoutonReglages" to="." method="ouvrir_reglages"]
+[connection signal="pressed" from="Centre/Colonne/Jouer" to="." method="jouer"]

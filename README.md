@@ -17,10 +17,10 @@ Grab the color dots to enrich your spew, then hold the puke button while flying 
 You win once 85% of the skyline is painted. Enemies hurt: a saucer or a ladybug costs you a
 heart, and they show up faster and faster as the town gets colored.
 
-Pick a difficulty on the title screen: **Easy** (3 hearts, extra hearts respawn), **Normal**
+On the title screen, pick a difficulty: **Easy** (3 hearts, extra hearts respawn), **Normal**
 (3 hearts, no extras) or **Hardcore** (one hit and it's over). After a hit, the lion blinks and
-stays invulnerable for a second and a half. Then pick one of three levels (Skyline,
-Metropolis, Village), each showing your best time for the chosen difficulty. In the Village, a
+stays invulnerable for a second and a half. Pick one of three levels (Skyline, Metropolis,
+Village), each showing your best time for the chosen difficulty, then press **Play**. In the Village, a
 giant painter joins in: he announces himself on one side of the screen, moves to the center,
 pauses, backs out, then comes back from the other side. Paint the half he leaves free, cross
 over when he retreats.
