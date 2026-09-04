@@ -1,5 +1,5 @@
 extends Node
-## Meilleurs temps par niveau, persistés dans un ConfigFile.
+## Meilleurs temps par niveau et préférences (difficulté, dernier niveau), dans un ConfigFile.
 
 const NB_MAX := 5
 
@@ -37,6 +37,15 @@ func enregistrer(niveau_id: String, temps: float) -> int:
 	_cfg.set_value("temps", niveau_id, liste.slice(0, NB_MAX))
 	_cfg.save(chemin)
 	return rang
+
+
+func preference(cle: String, defaut: Variant) -> Variant:
+	return _cfg.get_value("preferences", cle, defaut)
+
+
+func definir_preference(cle: String, valeur: Variant) -> void:
+	_cfg.set_value("preferences", cle, valeur)
+	_cfg.save(chemin)
 
 
 func effacer() -> void:

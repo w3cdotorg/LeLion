@@ -44,6 +44,23 @@ func _run() -> void:
 	GS.niveau_courant = 1
 	titre.free()
 
+	# Préférences : la difficulté et le niveau choisis sont relus par l'écran titre
+	scores.definir_preference("difficulte", 2)
+	scores.definir_preference("niveau", 1)
+	scores.charger()
+	GS.difficulte_courante = 0
+	GS.niveau_courant = 0
+	titre = load("res://Scenes/Titre.tscn").instantiate()
+	root.add_child(titre)
+	await _frames(1)
+	_check(GS.difficulte_courante == 2 and titre.boutons_difficulte[2].button_pressed, "l'écran titre restaure la difficulté sauvegardée")
+	_check(GS.niveau_courant == 1 and titre.boutons[1].has_focus(), "l'écran titre restaure le dernier niveau et lui donne le focus")
+	titre.choisir_difficulte(0)
+	_check(int(scores.preference("difficulte", -1)) == 0, "changer de difficulté la sauvegarde")
+	titre.free()
+	scores.effacer()
+	GS.niveau_courant = 0
+
 	# Scores
 	_check(scores.enregistrer("test", 90.0) == 0, "premier temps enregistré = record")
 	_check(scores.enregistrer("test", 120.0) == 1, "temps plus lent = rang 1")
@@ -62,6 +79,18 @@ func _run() -> void:
 	_check(GS.partie_en_cours, "partie en cours après Main._ready")
 	_check(root.get_node_or_null("Audio") != null, "autoload Audio présent")
 	_check(root.get_node("Audio")._musique.playing, "la musique tourne en boucle")
+
+	# Contrôles tactiles : cachés sans écran tactile, le stick pilote les actions
+	var tactile: CanvasLayer = main.get_node("ControlesTactiles")
+	_check(tactile.visible == DisplayServer.is_touchscreen_available(), "les contrôles tactiles ne s'affichent que sur écran tactile (ici : %s)" % tactile.visible)
+	var stick: Control = tactile.joystick
+	stick.debut(Vector2(300, 500))
+	stick.glisser(Vector2(300 + stick.rayon, 500 - stick.rayon * 0.5))
+	_check(Input.get_action_strength("deplacer_droite") > 0.8 and Input.get_action_strength("deplacer_haut") > 0.3
+		and Input.get_action_strength("deplacer_gauche") == 0.0, "le stick virtuel pilote les actions avec leur intensité")
+	stick.fin()
+	_check(Input.get_action_strength("deplacer_droite") == 0.0 and stick.vecteur == Vector2.ZERO, "relâcher le stick relâche les actions")
+	_check(tactile.get_node("BoutonVomir").action == "vomir" and tactile.get_node("BoutonPause").action == "pause", "les boutons tactiles déclenchent vomir et pause")
 
 	# Pause via l'action "pause"
 	var ev := InputEventAction.new()

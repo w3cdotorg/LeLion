@@ -32,6 +32,7 @@ func afficher(victoire: bool, progression: float, temps: float) -> void:
 
 func _on_suivant_pressed() -> void:
 	GameState.passer_au_niveau_suivant()
+	Scores.definir_preference("niveau", GameState.niveau_courant)
 	_relancer()
 
 

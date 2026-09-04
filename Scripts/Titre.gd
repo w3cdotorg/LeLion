@@ -13,6 +13,8 @@ var boutons: Array[Button] = []
 
 func _ready() -> void:
 	get_tree().paused = false
+	GameState.difficulte_courante = clamp(int(Scores.preference("difficulte", GameState.difficulte_courante)), 0, GameState.DIFFICULTES.size() - 1)
+	GameState.niveau_courant = clamp(int(Scores.preference("niveau", GameState.niveau_courant)), 0, GameState.NIVEAUX.size() - 1)
 	for i in range(GameState.DIFFICULTES.size()):
 		var d: Dictionary = GameState.DIFFICULTES[i]
 		var bouton := Button.new()
@@ -38,6 +40,7 @@ func _ready() -> void:
 
 func choisir_difficulte(index: int) -> void:
 	GameState.difficulte_courante = index
+	Scores.definir_preference("difficulte", index)
 	for i in range(boutons_difficulte.size()):
 		boutons_difficulte[i].set_pressed_no_signal(i == index)
 	for i in range(boutons.size()):
@@ -54,4 +57,5 @@ func _texte_niveau(index: int) -> String:
 
 func lancer(index: int) -> void:
 	GameState.niveau_courant = index
+	Scores.definir_preference("niveau", index)
 	get_tree().change_scene_to_file(SCENE_JEU)

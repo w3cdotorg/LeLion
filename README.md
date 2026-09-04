@@ -25,11 +25,14 @@ jusqu'au centre, marque une pause et repart, puis revient de l'autre côté. Pei
 qu'il libère, traverse quand il recule. Une étoile arc-en-ciel apparaît de temps en temps : ramasse-la
 pour doubler la largeur de ta gerbe pendant huit secondes.
 
-| Action | Clavier | Manette |
-|---|---|---|
-| Se déplacer | Flèches, WASD / ZQSD | Stick gauche, croix |
-| Vomir | Espace, Entrée | A |
-| Pause (Continuer / Revenir au menu) | Échap, P | Start |
+| Action | Clavier | Manette | Écran tactile |
+|---|---|---|---|
+| Se déplacer | Flèches, WASD / ZQSD | Stick gauche, croix | Stick virtuel : pose le pouce sur la moitié gauche |
+| Vomir | Espace, Entrée | A | Bouton VOMIR en bas à droite |
+| Pause (Continuer / Revenir au menu) | Échap, P | Start | Bouton II en haut à droite |
+
+Les contrôles tactiles n'apparaissent que sur un appareil à écran tactile. La difficulté et le
+dernier niveau choisis sont mémorisés d'une partie à l'autre, comme les records.
 
 ## Lancer le jeu
 
@@ -43,12 +46,12 @@ godot .
 ## Structure
 
 ```
-Scenes/     Titre, Main (partie), Lion, Ville, HUD, PauseMenu, GameOver, ColorPickup, BonusPickup, CoeurPickup, Soucoupe, Coccinelle, Boss
-Scripts/    un script par scène + autoloads GameState (partie, vies, niveaux, difficultés), Scores (records), Audio (sons)
+Scenes/     Titre, Main (partie), Lion, Ville, HUD, PauseMenu, ControlesTactiles, GameOver, ColorPickup, BonusPickup, CoeurPickup, Soucoupe, Coccinelle, Boss
+Scripts/    un script par scène + autoloads GameState (partie, vies, niveaux, difficultés), Scores (records, préférences), Audio (sons, musique)
 Shaders/    Ville.gdshader : applique le masque de peinture sur la skyline
 Assets/     Sprites (utilisés), Sons (générés), src (matériel de référence, ignoré par Godot)
 tests/      smoke_test.gd (headless) et screenshots.gd (captures pilotées)
-tools/      generer_sons.py (effets sonores) et generer_skylines.py (skylines, étoile, cœur)
+tools/      generer_sons.py (effets), generer_musique.py (boucle chiptune), generer_skylines.py (skylines, étoile, cœur, anneau)
 ```
 
 La peinture est un masque RGBA de la taille de la skyline, tamponné par blit natif là où
@@ -73,8 +76,8 @@ Pour vérifier visuellement (ouvre une fenêtre quelques secondes et écrit des 
 godot --rendering-driver opengl3 --script tests/screenshots.gd -- --dossier=/chemin/de/sortie
 ```
 
-Les sons se régénèrent avec `python3 tools/generer_sons.py`, les skylines avec
-`python3 tools/generer_skylines.py`.
+Les sons se régénèrent avec `python3 tools/generer_sons.py`, la musique avec
+`python3 tools/generer_musique.py`, les skylines et sprites avec `python3 tools/generer_skylines.py`.
 
 ## Export et CI
 
