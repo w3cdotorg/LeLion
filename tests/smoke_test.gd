@@ -175,6 +175,48 @@ func _run() -> void:
 	_check(scores.meilleur_temps("metropole/facile") >= 0.0, "le record est persisté par niveau et difficulté")
 	scores.effacer()
 
+	# Boss sur le niveau Village : cycle d'états accéléré et contact
+	paused = false
+	main.queue_free()
+	await _frames(2)
+	GS.niveau_courant = 2
+	GS.difficulte_courante = 0
+	main = load("res://Scenes/Main.tscn").instantiate()
+	root.add_child(main)
+	current_scene = main
+	await _frames(2)
+	lion = main.get_node("Lion")
+	var boss: Node = get_first_node_in_group("boss")
+	_check(boss != null, "le niveau Village fait apparaître le boss")
+	_check(main.get_node("Spawner")._facteur_ennemis == 2.0, "les autres ennemis sont deux fois moins fréquents avec un boss")
+	var nb_polygones := 0
+	for enfant in boss.get_children():
+		if enfant is CollisionPolygon2D:
+			nb_polygones += 1
+	_check(nb_polygones > 0, "la collision du boss est générée depuis la silhouette (%d polygones)" % nb_polygones)
+	_check(abs(boss.sprite.scale.y * boss.sprite.texture.get_height() - 648 * 0.65) < 1.0, "le boss fait 65 % de la hauteur de l'écran")
+	_check(abs(boss.position.y + boss._demi_hauteur - boss.y_sol) < 0.5 and abs(boss.y_sol - (648 - 180)) < 0.5,
+		"le boss est posé sur le haut de la skyline (bas=%.1f, sol=%.1f)" % [boss.position.y + boss._demi_hauteur, boss.y_sol])
+	_check(boss.etat == boss.Etat.REPOS, "le boss commence hors écran, au repos")
+	# on accélère le cycle
+	var cote_initial: int = boss.cote
+	boss.duree_repos = 0.05
+	boss.duree_annonce = 0.05
+	boss.duree_entree = 0.2
+	boss.duree_pause = 0.05
+	boss.duree_sortie = 0.2
+	boss._changer_etat(boss.Etat.ANNONCE)
+	var etats_vus: Array = []
+	boss.etat_change.connect(func(e: int) -> void: etats_vus.append(e))
+	lion.global_position = Vector2(1000 - 68, boss.position.y - 66)  # au centre, sur le passage
+	var vies_avant: int = GS.vies
+	await create_timer(0.9).timeout
+	_check(etats_vus.has(boss.Etat.PAUSE) and etats_vus.has(boss.Etat.SORTIE) and etats_vus.has(boss.Etat.REPOS),
+		"le boss enchaîne entrée, pause au centre, sortie, repos")
+	_check(boss.cote == -cote_initial, "le boss change de côté après un cycle")
+	_check(GS.vies < vies_avant, "le boss blesse le lion au passage (%d → %d)" % [vies_avant, GS.vies])
+	GS.niveau_courant = 0
+
 	# Hardcore : un seul coup
 	paused = false
 	main.queue_free()

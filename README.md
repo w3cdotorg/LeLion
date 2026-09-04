@@ -7,6 +7,8 @@ Un jeu absurde et délicieusement coloré, fait avec [Godot 4](https://godotengi
 
 ![Capture du jeu](docs/capture.png)
 
+![Le peintre géant au Village](docs/boss.png)
+
 ## Comment jouer
 
 Attrape les pastilles de couleur pour enrichir ta gerbe, puis maintiens la touche de vomi
@@ -18,7 +20,9 @@ Trois difficultés se choisissent sur l'écran titre : **Facile** (3 cœurs, des
 ramasser réapparaissent), **Moyen** (3 cœurs, sans rab) et **Hardcore** (un seul coup et
 c'est fini). Après un coup, le lion clignote et reste invulnérable une seconde et demie.
 Puis trois niveaux (Skyline, Métropole, Village), avec ton meilleur temps pour la difficulté
-choisie. Une étoile arc-en-ciel apparaît de temps en temps : ramasse-la
+choisie. Au Village, un peintre géant s'invite : il s'annonce d'un côté de l'écran, avance
+jusqu'au centre, marque une pause et repart, puis revient de l'autre côté. Peins la moitié
+qu'il libère, traverse quand il recule. Une étoile arc-en-ciel apparaît de temps en temps : ramasse-la
 pour doubler la largeur de ta gerbe pendant huit secondes.
 
 | Action | Clavier | Manette |
@@ -39,7 +43,7 @@ godot .
 ## Structure
 
 ```
-Scenes/     Titre, Main (partie), Lion, Ville, HUD, GameOver, ColorPickup, BonusPickup, CoeurPickup, Soucoupe, Coccinelle
+Scenes/     Titre, Main (partie), Lion, Ville, HUD, GameOver, ColorPickup, BonusPickup, CoeurPickup, Soucoupe, Coccinelle, Boss
 Scripts/    un script par scène + autoloads GameState (partie, vies, niveaux, difficultés), Scores (records), Audio (sons)
 Shaders/    Ville.gdshader : applique le masque de peinture sur la skyline
 Assets/     Sprites (utilisés), Sons (générés), src (matériel de référence, ignoré par Godot)
@@ -50,7 +54,9 @@ tools/      generer_sons.py (effets sonores) et generer_skylines.py (skylines, �
 La peinture est un masque RGBA de la taille de la skyline, tamponné par blit natif là où
 la gerbe touche la ville. La progression est comptée sur une grille de cellules de 8 px qui
 ne couvre que les zones opaques de la skyline. Un niveau, c'est simplement un PNG de
-silhouette : ajoute une entrée dans `GameState.NIVEAUX` pour en créer un.
+silhouette : ajoute une entrée dans `GameState.NIVEAUX` pour en créer un, avec `"boss": true`
+pour y faire venir le peintre. Sa collision est générée depuis l'alpha de son sprite SVG, donc
+remplacer `Assets/Sprites/boss_peintre.svg` suffit à changer sa silhouette.
 
 ## Tests
 

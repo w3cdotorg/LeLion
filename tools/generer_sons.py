@@ -87,8 +87,22 @@ def victoire():
     ecrire("victoire", out)
 
 
+def boss():
+    """Grondement grave qui monte : le peintre arrive."""
+    dur, out, ph = 0.9, [], 0.0
+    random.seed(3)
+    for i in range(int(SR * dur)):
+        t = i / SR
+        f = 55 + 40 * (t / dur)
+        ph += 2 * math.pi * f / SR
+        x = math.sin(ph) * 0.6 + math.sin(ph * 2.01) * 0.25 + random.uniform(-1, 1) * 0.12
+        out.append(x * env(t, dur, a=0.05, r=0.3) * (0.6 + 0.4 * math.sin(2 * math.pi * 9 * t)))
+    ecrire("boss", out, gain=0.9)
+
+
 if __name__ == "__main__":
     pickup()
     vomi()
     mort()
     victoire()
+    boss()

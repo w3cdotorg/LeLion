@@ -5,6 +5,7 @@ const SONS := {
 	"pickup": preload("res://Assets/Sons/pickup.wav"),
 	"mort": preload("res://Assets/Sons/mort.wav"),
 	"victoire": preload("res://Assets/Sons/victoire.wav"),
+	"boss": preload("res://Assets/Sons/boss.wav"),
 }
 var _vomi_stream: AudioStreamWAV = preload("res://Assets/Sons/vomi.wav")
 var _vomi: AudioStreamPlayer

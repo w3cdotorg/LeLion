@@ -7,6 +7,7 @@ extends Node
 @export var coccinelle_scene: PackedScene = preload("res://Scenes/Coccinelle.tscn")
 @export var bonus_scene: PackedScene = preload("res://Scenes/BonusPickup.tscn")
 @export var coeur_scene: PackedScene = preload("res://Scenes/CoeurPickup.tscn")
+@export var boss_scene: PackedScene = preload("res://Scenes/Boss.tscn")
 
 @export_group("Pickups")
 @export var delai_premier_pickup := 1.0
@@ -25,11 +26,13 @@ extends Node
 @export var intervalle_coccinelle := Vector2(8.0, 3.0)
 @export var vitesse_soucoupe := Vector2(150.0, 320.0)
 @export var duree_montee_difficulte := 120.0
+@export var facteur_ennemis_avec_boss := 2.0  # intervalles multipliés quand un boss est présent
 
 var _timer_soucoupe: Timer
 var _timer_coccinelle: Timer
 var _timer_bonus: Timer
 var _timer_coeur: Timer
+var _facteur_ennemis := 1.0
 
 
 func _ready() -> void:
@@ -39,8 +42,11 @@ func _ready() -> void:
 	_timer_soucoupe = _creer_timer(_on_timer_soucoupe)
 	_timer_coccinelle = _creer_timer(_on_timer_coccinelle)
 	_timer_bonus = _creer_timer(_on_timer_bonus)
-	_timer_soucoupe.start(intervalle_soucoupe.x * 0.5)
-	_timer_coccinelle.start(intervalle_coccinelle.x * 0.8)
+	if GameState.niveau().get("boss", false):
+		_facteur_ennemis = facteur_ennemis_avec_boss
+		spawn_boss()
+	_timer_soucoupe.start(intervalle_soucoupe.x * 0.5 * _facteur_ennemis)
+	_timer_coccinelle.start(intervalle_coccinelle.x * 0.8 * _facteur_ennemis)
 	_timer_bonus.start(delai_premier_bonus)
 	if GameState.difficulte().pickups_coeur:
 		_timer_coeur = _creer_timer(_on_timer_coeur)
@@ -55,7 +61,7 @@ func difficulte() -> float:
 
 
 func _intervalle(bornes: Vector2) -> float:
-	return lerp(bornes.x, bornes.y, difficulte()) * randf_range(0.8, 1.2)
+	return lerp(bornes.x, bornes.y, difficulte()) * randf_range(0.8, 1.2) * _facteur_ennemis
 
 
 func _creer_timer(action: Callable) -> Timer:
@@ -139,6 +145,21 @@ func _position_pickup_aleatoire() -> Vector2:
 		if lion == null or pos.distance_to(lion.global_position) >= distance_min_du_lion:
 			break
 	return pos
+
+
+## Le boss se pose sur le haut de la skyline. Ajout différé : depuis _ready, la ville n'a
+## pas encore reçu la texture du niveau (Main la charge après ses enfants).
+func spawn_boss() -> Node:
+	var boss := boss_scene.instantiate()
+	_placer_et_ajouter_boss.call_deferred(boss)
+	return boss
+
+
+func _placer_et_ajouter_boss(boss: Node) -> void:
+	var ville: Node2D = get_tree().get_first_node_in_group("ville")
+	if ville != null:
+		boss.y_sol = ville.position.y - ville.tex_size.y / 2.0
+	get_parent().add_child(boss)
 
 
 func spawn_pickup(index: int, position_pickup: Vector2) -> Node:

@@ -27,7 +27,7 @@ const DIFFICULTES: Array[Dictionary] = [
 const NIVEAUX: Array[Dictionary] = [
 	{"id": "skyline", "nom": "Skyline", "texture": "res://Assets/Sprites/skyline_2000px.png"},
 	{"id": "metropole", "nom": "Métropole", "texture": "res://Assets/Sprites/skyline_metropole.png"},
-	{"id": "village", "nom": "Village", "texture": "res://Assets/Sprites/skyline_village.png"},
+	{"id": "village", "nom": "Village", "texture": "res://Assets/Sprites/skyline_village.png", "boss": true},
 ]
 
 var couleurs_debloquees: Array[Color] = []

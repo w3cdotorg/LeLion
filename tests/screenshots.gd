@@ -76,4 +76,23 @@ func _run() -> void:
 	await _shot("04_game_over")
 	paused = false
 	main.free()
+
+	# Village : le boss au centre
+	GS.niveau_courant = 2
+	main = load("res://Scenes/Main.tscn").instantiate()
+	root.add_child(main)
+	current_scene = main
+	await _attendre(0.2)
+	var boss: Node = get_first_node_in_group("boss")
+	for i in range(7):
+		GS.debloquer_couleur(i)
+	main.get_node("Lion").global_position = Vector2(1500, 150)
+	boss.cote = 1
+	boss._changer_etat(boss.Etat.ENTREE)
+	await _attendre(3.2)
+	Input.action_press("vomir")
+	await _attendre(0.8)
+	await _shot("05_village_boss")
+	Input.action_release("vomir")
+	main.free()
 	quit(0)
