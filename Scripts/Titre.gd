@@ -9,6 +9,7 @@ const SCENE_REGLAGES := preload("res://Scenes/Reglages.tscn")
 @onready var niveaux: HBoxContainer = $Centre/Colonne/RangeeNiveau/Niveaux
 @onready var bouton_jouer: Button = $Centre/Colonne/Jouer
 @onready var bouton_reglages: Button = $BoutonReglages
+@onready var bouton_arcade: Button = $BoutonArcade
 
 var boutons_difficulte: Array[Button] = []
 var boutons: Array[Button] = []
@@ -16,6 +17,7 @@ var boutons: Array[Button] = []
 
 func _ready() -> void:
 	get_tree().paused = false
+	GameState.quitter_arcade()
 	GameState.difficulte_courante = clamp(int(Scores.preference("difficulte", GameState.difficulte_courante)), 0, GameState.DIFFICULTES.size() - 1)
 	GameState.niveau_courant = clamp(int(Scores.preference("niveau", GameState.niveau_courant)), 0, GameState.NIVEAUX.size() - 1)
 
@@ -68,6 +70,15 @@ func rafraichir_textes() -> void:
 		boutons_difficulte[i].text = "%s\n%s" % [tr(d.nom), tr(d.description)]
 	for i in range(boutons.size()):
 		boutons[i].text = _texte_niveau(i)
+	var record_arcade: float = Scores.meilleur_temps("arcade")
+	var ligne := tr("RECORD") % GameState.formater_temps(record_arcade) if record_arcade >= 0.0 else tr("ARCADE_DESC")
+	bouton_arcade.text = "%s\n%s" % [tr("ARCADE"), ligne]
+
+
+func lancer_arcade(changer_scene := true) -> void:
+	GameState.demarrer_arcade()
+	if changer_scene:
+		get_tree().change_scene_to_file(SCENE_JEU)
 
 
 func _texte_niveau(index: int) -> String:

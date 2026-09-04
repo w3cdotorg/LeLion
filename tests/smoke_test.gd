@@ -375,6 +375,42 @@ func _run() -> void:
 	_check(GS.vies < vies_avant, "le boss blesse le lion au passage (%d → %d)" % [vies_avant, GS.vies])
 	GS.niveau_courant = 0
 
+	# Arcade : neuf stages, Facile → Moyen → Hardcore
+	_check(tr("ARCADE") in titre.bouton_arcade.text if is_instance_valid(titre) else true, "(titre libéré)")
+	GS.demarrer_arcade()
+	_check(GS.mode_arcade and GS.difficulte_courante == 0 and GS.niveau_courant == 0 and GS.titre_etape() == "STAGE 1/9",
+		"l'arcade démarre au stage 1 : Skyline en Facile")
+	for i in range(3):
+		GS.passer_etape_arcade()
+	_check(GS.difficulte_courante == 1 and GS.niveau_courant == 0, "le stage 4 est Skyline en Moyen")
+	for i in range(5):
+		GS.passer_etape_arcade()
+	_check(GS.etape_arcade == 8 and GS.difficulte_courante == 2 and GS.niveau_courant == 2 and not GS.etape_arcade_suivante_existe(),
+		"le stage 9 est Village en Hardcore, dernier")
+	GS.temps_arcade = 400.0
+	paused = false
+	main.queue_free()
+	await _frames(2)
+	main = load("res://Scenes/Main.tscn").instantiate()
+	root.add_child(main)
+	current_scene = main
+	await _frames(2)
+	main.get_node("Intro").queue_free()
+	GS.demarrer()
+	await _frames(1)
+	hud = main.get_node("HUD")
+	_check(hud.etape.visible and hud.etape.text == "STAGE 9/9", "le HUD affiche le stage en arcade")
+	GS.temps_ecoule = 30.0
+	GS.signaler_progression(0.96)
+	await _frames(3)
+	overlay = main.get_node_or_null("GameOver")
+	_check(overlay != null and overlay.titre.text == tr("ARCADE_TERMINE"), "gagner le stage 9 termine l'arcade")
+	_check(overlay != null and not overlay.bouton_suivant.visible and not overlay.bouton_rejouer.visible, "fin d'arcade : seul Menu reste")
+	_check(abs(GS.temps_arcade - 430.0) < 0.01 and abs(scores.meilleur_temps("arcade") - 430.0) < 0.01, "le temps total d'arcade est cumulé et enregistré")
+	_check(overlay != null and overlay._lignes[-1].cible == 430, "le bilan affiche le temps total")
+	scores.effacer()
+	GS.quitter_arcade()
+
 	# Hardcore : un seul coup
 	paused = false
 	main.queue_free()

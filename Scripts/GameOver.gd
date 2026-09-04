@@ -92,7 +92,8 @@ func _afficher_bilan() -> void:
 	var victoire := _victoire
 	var progression := _progression
 	var temps := _temps
-	titre.text = tr("VICTOIRE") if victoire else tr("GAME_OVER")
+	var fin_arcade := victoire and GameState.arcade_termine()
+	titre.text = tr("ARCADE_TERMINE") if fin_arcade else (tr("VICTOIRE") if victoire else tr("GAME_OVER"))
 	titre.add_theme_color_override("font_color", COULEUR_VICTOIRE if victoire else COULEUR_DEFAITE)
 
 	var pourcent := int(round(progression * 100))
@@ -102,8 +103,11 @@ func _afficher_bilan() -> void:
 		record_precedent = Scores.meilleur_temps(GameState.cle_score())
 		rang = Scores.enregistrer(GameState.cle_score(), temps)
 		_lancer_confettis()
-	sous_titre.text = tr("NOUVEAU_RECORD") if rang == 0 else ""
-	sous_titre.visible = rang == 0
+	var rang_arcade := -1
+	if fin_arcade:
+		rang_arcade = Scores.enregistrer("arcade", GameState.temps_arcade)
+	sous_titre.text = tr("NOUVEAU_RECORD") if (rang == 0 or rang_arcade == 0) else ""
+	sous_titre.visible = rang == 0 or rang_arcade == 0
 	sous_titre.modulate.a = 0.0
 
 	_ajouter_ligne(tr("STAT_PEINT"), pourcent, "%d %%")
@@ -124,8 +128,14 @@ func _afficher_bilan() -> void:
 	_ajouter_ligne(tr("STAT_COULEURS"), GameState.couleurs_debloquees.size(), "%d / " + str(GameState.nb_couleurs_total()))
 	if victoire and record_precedent >= 0.0:
 		_ajouter_ligne(tr("STAT_RECORD_PRECEDENT"), int(record_precedent), "temps")
+	if fin_arcade:
+		_ajouter_ligne(tr("STAT_TEMPS_TOTAL"), int(GameState.temps_arcade), "temps")
 
-	bouton_suivant.visible = victoire and GameState.niveau_suivant_existe()
+	if GameState.mode_arcade:
+		bouton_suivant.visible = victoire and GameState.etape_arcade_suivante_existe()
+		bouton_rejouer.visible = not fin_arcade
+	else:
+		bouton_suivant.visible = victoire and GameState.niveau_suivant_existe()
 	boutons.modulate.a = 0.0
 	_animer()
 
@@ -196,7 +206,12 @@ func _terminer_animation() -> void:
 	sous_titre.modulate.a = 1.0
 	sous_titre.scale = Vector2.ONE
 	boutons.modulate.a = 1.0
-	(bouton_suivant if bouton_suivant.visible else bouton_rejouer).grab_focus()
+	if bouton_suivant.visible:
+		bouton_suivant.grab_focus()
+	elif bouton_rejouer.visible:
+		bouton_rejouer.grab_focus()
+	else:
+		$Centre/Colonne/Boutons/Menu.grab_focus()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -214,8 +229,11 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _on_suivant_pressed() -> void:
-	GameState.passer_au_niveau_suivant()
-	Scores.definir_preference("niveau", GameState.niveau_courant)
+	if GameState.mode_arcade:
+		GameState.passer_etape_arcade()
+	else:
+		GameState.passer_au_niveau_suivant()
+		Scores.definir_preference("niveau", GameState.niveau_courant)
 	_relancer()
 
 

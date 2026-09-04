@@ -48,3 +48,8 @@ PRET,PRÊT ?,READY?
 VOMISSEZ,VOMISSEZ !,VOMIT!
 CONTINUE,CONTINUE ?,CONTINUE?
 CONTINUE_AIDE,Espace pour continuer,Press Space to continue
+ARCADE,Arcade,Arcade
+ARCADE_DESC,9 stages · 3 difficultés,9 stages · 3 difficulties
+ARCADE_TERMINE,ARCADE TERMINÉ !,ARCADE CLEARED!
+STAT_TEMPS_TOTAL,Temps total,Total time
+STAGE,STAGE %d/%d,STAGE %d/%d

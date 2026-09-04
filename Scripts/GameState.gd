@@ -15,6 +15,7 @@ const COULEURS_ARC_EN_CIEL: Array[Color] = [
 	Color.CYAN, Color.BLUE, Color.VIOLET,
 ]
 const VIES_MAX := 3
+const NB_ETAPES_ARCADE := 9  # 3 niveaux × 3 difficultés
 const DUREE_INVULNERABILITE := 1.5
 const DIFFICULTES: Array[Dictionary] = [
 	{"id": "facile", "nom": "DIFF_FACILE", "description": "DIFF_FACILE_DESC", "vies": 3, "pickups_coeur": true, "seuil": 0.85},
@@ -34,6 +35,9 @@ var partie_en_cours := false
 var pret := false  # false pendant l'intro « Prêt ? Vomissez ! »
 var niveau_courant := 0
 var difficulte_courante := 0
+var mode_arcade := false
+var etape_arcade := 0
+var temps_arcade := 0.0  # somme des temps des stages gagnés
 var vies := 3
 var coups_recus := 0
 var invulnerable_restant := 0.0
@@ -77,9 +81,42 @@ func difficulte() -> Dictionary:
 	return DIFFICULTES[difficulte_courante]
 
 
-## Texte affiché par l'intro : nom du niveau.
+## Texte affiché par l'intro : « STAGE n/9 » en arcade, sinon le nom du niveau.
 func titre_etape() -> String:
+	if mode_arcade:
+		return tr("STAGE") % [etape_arcade + 1, NB_ETAPES_ARCADE]
 	return tr(niveau().nom).to_upper()
+
+
+## Arcade : les neuf stages à la suite, Facile puis Moyen puis Hardcore, trois niveaux chacun.
+func demarrer_arcade() -> void:
+	mode_arcade = true
+	etape_arcade = 0
+	temps_arcade = 0.0
+	_appliquer_etape_arcade()
+
+
+func quitter_arcade() -> void:
+	mode_arcade = false
+
+
+func _appliquer_etape_arcade() -> void:
+	difficulte_courante = etape_arcade / NIVEAUX.size()
+	niveau_courant = etape_arcade % NIVEAUX.size()
+
+
+func etape_arcade_suivante_existe() -> bool:
+	return etape_arcade + 1 < NB_ETAPES_ARCADE
+
+
+func passer_etape_arcade() -> void:
+	if etape_arcade_suivante_existe():
+		etape_arcade += 1
+		_appliquer_etape_arcade()
+
+
+func arcade_termine() -> bool:
+	return mode_arcade and not etape_arcade_suivante_existe()
 
 
 ## Part de la ville à peindre pour gagner, selon la difficulté.
@@ -178,6 +215,8 @@ func terminer_partie(victoire: bool) -> void:
 	if not partie_en_cours:
 		return
 	partie_en_cours = false
+	if victoire and mode_arcade:
+		temps_arcade += temps_ecoule
 	partie_terminee.emit(victoire)
 
 

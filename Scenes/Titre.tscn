@@ -123,5 +123,15 @@ grow_horizontal = 0
 theme_override_font_sizes/font_size = 26
 text = "REGLAGES"
 
+[node name="BoutonArcade" type="Button" parent="."]
+layout_mode = 1
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 284.0
+offset_bottom = 100.0
+theme_override_font_sizes/font_size = 24
+text = "ARCADE"
+
+[connection signal="pressed" from="BoutonArcade" to="." method="lancer_arcade"]
 [connection signal="pressed" from="BoutonReglages" to="." method="ouvrir_reglages"]
 [connection signal="pressed" from="Centre/Colonne/Jouer" to="." method="jouer"]

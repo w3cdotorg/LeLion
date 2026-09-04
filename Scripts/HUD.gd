@@ -14,6 +14,7 @@ const COULEUR_COEUR_PERDU := Color(1, 1, 1, 0.15)
 @onready var repere_seuil: ColorRect = $Marge/Ligne/Progression/RepereSeuil
 @onready var couleurs: HBoxContainer = $Marge/Ligne/Couleurs
 @onready var chrono: Label = $Marge/Ligne/Chrono
+@onready var etape: Label = $Marge/Ligne/Etape
 @onready var indice: Label = $Indice
 @onready var etiquette_bonus: Label = $Marge/Ligne/Bonus
 
@@ -46,6 +47,9 @@ func _ready() -> void:
 	if DisplayServer.is_touchscreen_available():
 		indice.text = "INDICE_TACTILE"
 	_placer_repere_seuil()
+	etape.visible = GameState.mode_arcade
+	if GameState.mode_arcade:
+		etape.text = GameState.titre_etape()
 	_on_progression_changee(GameState.progression)
 	for c in GameState.couleurs_debloquees:
 		_on_couleur_debloquee(c)
