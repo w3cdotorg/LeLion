@@ -39,21 +39,29 @@ custom_minimum_size = Vector2(320, 64)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 32
-text = "Continuer"
+text = "CONTINUER"
+
+[node name="Reglages" type="Button" parent="Centre/Colonne"]
+custom_minimum_size = Vector2(320, 64)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 32
+text = "REGLAGES"
 
 [node name="Menu" type="Button" parent="Centre/Colonne"]
 custom_minimum_size = Vector2(320, 64)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 32
-text = "Revenir au menu"
+text = "REVENIR_MENU"
 
 [node name="Aide" type="Label" parent="Centre/Colonne"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 0.6)
 theme_override_font_sizes/font_size = 22
-text = "Échap pour reprendre"
+text = "ECHAP_REPRENDRE"
 horizontal_alignment = 1
 
 [connection signal="pressed" from="Centre/Colonne/Continuer" to="." method="reprendre"]
+[connection signal="pressed" from="Centre/Colonne/Reglages" to="." method="ouvrir_reglages"]
 [connection signal="pressed" from="Centre/Colonne/Menu" to="." method="_on_menu_pressed"]

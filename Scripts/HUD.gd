@@ -43,7 +43,7 @@ func _ready() -> void:
 	GameState.progression_changee.connect(_on_progression_changee)
 	GameState.couleur_debloquee.connect(_on_couleur_debloquee)
 	if DisplayServer.is_touchscreen_available():
-		indice.text = "Attrape une pastille de couleur, puis maintiens VOMIR pour peindre la ville !"
+		indice.text = "INDICE_TACTILE"
 	_on_progression_changee(GameState.progression)
 	for c in GameState.couleurs_debloquees:
 		_on_couleur_debloquee(c)
@@ -53,7 +53,7 @@ func _process(_delta: float) -> void:
 	chrono.text = GameState.formater_temps(GameState.temps_ecoule)
 	etiquette_bonus.visible = GameState.bonus_actif()
 	if etiquette_bonus.visible:
-		etiquette_bonus.text = "★ GERBE XXL %d s" % ceili(GameState.bonus_restant)
+		etiquette_bonus.text = tr("BONUS_XXL") % ceili(GameState.bonus_restant)
 
 
 

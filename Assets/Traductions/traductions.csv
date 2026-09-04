@@ -1,0 +1,36 @@
+keys,fr,en
+ACCROCHE,"Colorie la ville en vomissant un arc-en-ciel. Évite la soucoupe et la coccinelle.","Paint the town by puking a rainbow. Dodge the saucer and the ladybug."
+AIDE_CONTROLES,"Flèches / WASD : se déplacer   ·   Espace : vomir   ·   Échap : pause","Arrows / WASD: move   ·   Space: puke   ·   Esc: pause"
+REGLAGES,Réglages,Settings
+RECORD,record %s,best %s
+PAS_ENCORE_PEINT,pas encore peint,not painted yet
+DIFF_FACILE,Facile,Easy
+DIFF_FACILE_DESC,"3 cœurs, des cœurs à ramasser","3 hearts, hearts to pick up"
+DIFF_MOYEN,Moyen,Normal
+DIFF_MOYEN_DESC,"3 cœurs, sans rab","3 hearts, no extras"
+DIFF_HARDCORE,Hardcore,Hardcore
+DIFF_HARDCORE_DESC,un seul coup et c'est fini,one hit and it's over
+NIVEAU_SKYLINE,Skyline,Skyline
+NIVEAU_METROPOLE,Métropole,Metropolis
+NIVEAU_VILLAGE,Village,Village
+INDICE_CLAVIER,"Attrape une pastille de couleur, puis maintiens Espace pour peindre la ville !","Grab a color dot, then hold Space to paint the town!"
+INDICE_TACTILE,"Attrape une pastille de couleur, puis maintiens VOMIR pour peindre la ville !","Grab a color dot, then hold PUKE to paint the town!"
+BONUS_XXL,★ GERBE XXL %d s,★ XXL SPEW %d s
+PAUSE,PAUSE,PAUSED
+CONTINUER,Continuer,Resume
+REVENIR_MENU,Revenir au menu,Back to menu
+ECHAP_REPRENDRE,Échap pour reprendre,Esc to resume
+VICTOIRE,VICTOIRE !,VICTORY!
+GAME_OVER,GAME OVER,GAME OVER
+VILLE_PEINTE_TEMPS,Ville peinte à %d %% en %s,Town painted %d%% in %s
+VILLE_PEINTE,Ville peinte à %d %%,Town painted %d%%
+NOUVEAU_RECORD,Nouveau record !,New record!
+NIVEAU_SUIVANT,Niveau suivant,Next level
+REJOUER,Rejouer,Play again
+MENU,Menu,Menu
+VOMIR,VOMIR,PUKE
+VOLUME_MUSIQUE,Musique,Music
+VOLUME_EFFETS,Effets sonores,Sound effects
+PLEIN_ECRAN,Plein écran,Fullscreen
+LANGUE,Langue,Language
+FERMER,Fermer,Close

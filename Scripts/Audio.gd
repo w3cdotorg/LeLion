@@ -1,6 +1,9 @@
 extends Node
 ## Effets sonores. Écoute GameState pour les sons d'événements ; le lion pilote la boucle de vomi.
 
+const DB_VOMI := -8.0
+const DB_MUSIQUE := -12.0
+
 const SONS := {
 	"pickup": preload("res://Assets/Sons/pickup.wav"),
 	"mort": preload("res://Assets/Sons/mort.wav"),
@@ -19,24 +22,30 @@ func _ready() -> void:
 	_vomi_stream.loop_end = int(_vomi_stream.get_length() * _vomi_stream.mix_rate)
 	_vomi = AudioStreamPlayer.new()
 	_vomi.stream = _vomi_stream
-	_vomi.volume_db = -8.0
 	add_child(_vomi)
 
 	_musique_stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
 	_musique_stream.loop_end = int(_musique_stream.get_length() * _musique_stream.mix_rate)
 	_musique = AudioStreamPlayer.new()
 	_musique.stream = _musique_stream
-	_musique.volume_db = -12.0
 	add_child(_musique)
 	_musique.play()
+	appliquer_volumes()
+	Parametres.volumes_changes.connect(appliquer_volumes)
 
 	GameState.couleur_debloquee.connect(func(_c: Color) -> void: jouer("pickup"))
 	GameState.partie_terminee.connect(_on_partie_terminee)
 
 
+func appliquer_volumes() -> void:
+	_musique.volume_db = DB_MUSIQUE + Parametres.en_db(Parametres.musique)
+	_vomi.volume_db = DB_VOMI + Parametres.en_db(Parametres.effets)
+
+
 func jouer(nom: String) -> void:
 	var lecteur := AudioStreamPlayer.new()
 	lecteur.stream = SONS[nom]
+	lecteur.volume_db = Parametres.en_db(Parametres.effets)
 	lecteur.finished.connect(lecteur.queue_free)
 	add_child(lecteur)
 	lecteur.play()

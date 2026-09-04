@@ -28,8 +28,22 @@ func _run() -> void:
 	print("== smoke test LeLion ==")
 	GS = root.get_node("GameState")
 	var scores: Node = root.get_node("Scores")
+	var params: Node = root.get_node("Parametres")
 	scores.chemin = "user://scores_test.cfg"
 	scores.effacer()
+	params.definir_langue("fr")
+
+	# Traductions et réglages
+	_check(tr("CONTINUER") == "Continuer", "les traductions françaises sont chargées")
+	params.definir_langue("en")
+	_check(tr("CONTINUER") == "Resume" and tr("NIVEAU_METROPOLE") == "Metropolis", "le passage en anglais traduit les libellés")
+	params.definir_langue("fr")
+	params.definir_musique(0.3)
+	params.definir_effets(0.0)
+	_check(abs(float(scores.preference("musique", -1.0)) - 0.3) < 0.001 and float(scores.preference("effets", -1.0)) == 0.0, "les volumes sont sauvegardés")
+	_check(root.get_node("Audio")._musique.volume_db < -20.0 and params.en_db(0.0) <= -80.0, "le volume s'applique à la musique, 0 = silence")
+	params.definir_musique(0.7)
+	params.definir_effets(1.0)
 
 	# Écran titre : un bouton par niveau, lancer un niveau le sélectionne
 	var titre: Control = load("res://Scenes/Titre.tscn").instantiate()
@@ -40,7 +54,19 @@ func _run() -> void:
 	titre.choisir_difficulte(2)
 	_check(GS.difficulte_courante == 2 and titre.boutons_difficulte[2].button_pressed, "choisir une difficulté la sélectionne")
 	titre.choisir_difficulte(0)
-	_check("pas encore peint" in titre.boutons[1].text, "un niveau jamais gagné affiche « pas encore peint »")
+	_check(tr("PAS_ENCORE_PEINT") in titre.boutons[1].text, "un niveau jamais gagné affiche « pas encore peint »")
+	_check(tr("NIVEAU_METROPOLE") in titre.boutons[1].text and tr("DIFF_FACILE") in titre.boutons_difficulte[0].text, "l'écran titre affiche les noms traduits")
+	titre.ouvrir_reglages()
+	await _frames(1)
+	var reglages: Node = titre.get_node_or_null("Reglages")
+	_check(reglages != null and reglages.musique.has_focus(), "le bouton Réglages ouvre l'écran de réglages")
+	reglages._choisir_langue("en")
+	await _frames(1)
+	_check(params.langue == "en" and "Metropolis" in titre.boutons[1].text, "changer la langue retraduit l'écran titre")
+	reglages._choisir_langue("fr")
+	reglages.fermer()
+	await _frames(1)
+	_check(titre.get_node_or_null("Reglages") == null and titre.bouton_reglages.has_focus(), "Fermer referme les réglages et rend le focus")
 	GS.niveau_courant = 1
 	titre.free()
 
@@ -108,6 +134,11 @@ func _run() -> void:
 	_check(not paused and not menu_pause.visible, "Échap relance la partie")
 	menu_pause.ouvrir()
 	_check(paused, "ouvrir() met en pause")
+	menu_pause.ouvrir_reglages()
+	await _frames(1)
+	_check(menu_pause.get_node_or_null("Reglages") != null, "les réglages s'ouvrent depuis la pause")
+	menu_pause.get_node("Reglages").fermer()
+	await _frames(1)
 	menu_pause.reprendre()
 	_check(not paused and not menu_pause.visible, "Continuer reprend la partie")
 	var nb_cellules: int = ville.grille_taille.x * ville.grille_taille.y
@@ -137,7 +168,8 @@ func _run() -> void:
 	_check(lion.traceuse_shape.shape.radius == rayon_normal * 2.0, "le rayon de peinture est doublé pendant le bonus")
 	_check(hud.etiquette_bonus.visible, "le HUD affiche le bonus")
 	GS.bonus_restant = 0.01
-	await _frames(3)
+	await create_timer(0.1).timeout
+	await _frames(1)
 	_check(not GS.bonus_actif() and lion.traceuse_shape.shape.radius == rayon_normal, "le bonus expire et le rayon revient à la normale")
 	_check(root.get_node("Audio")._vomi.playing, "la boucle sonore de vomi tourne")
 	_check(ville.cellules_peintes > 0, "la ville a été peinte (%d cellules)" % ville.cellules_peintes)
@@ -187,7 +219,7 @@ func _run() -> void:
 	_check(paused, "l'arbre est en pause après la défaite")
 	var overlay: Node = main.get_node_or_null("GameOver")
 	_check(overlay != null, "l'overlay GameOver est affiché")
-	_check(overlay != null and overlay.titre.text == "GAME OVER", "l'overlay affiche GAME OVER")
+	_check(overlay != null and overlay.titre.text == tr("GAME_OVER"), "l'overlay affiche GAME OVER")
 	_check(overlay != null and not overlay.bouton_suivant.visible, "pas de bouton Niveau suivant après une défaite")
 
 	_check(Input.get_action_strength("deplacer_droite") == 0.0, "la défaite relâche le stick virtuel")
@@ -215,13 +247,13 @@ func _run() -> void:
 	_check(ville.coulures.size() > 0 or ville.CHANCE_COULURE == 0.0, "des coulures de peinture sont en cours (%d)" % ville.coulures.size())
 	_check(not GS.partie_en_cours and paused, "la partie se termine en victoire")
 	overlay = main.get_node_or_null("GameOver")
-	_check(overlay != null and overlay.titre.text == "VICTOIRE !", "l'overlay affiche VICTOIRE")
+	_check(overlay != null and overlay.titre.text == tr("VICTOIRE"), "l'overlay affiche VICTOIRE")
 	var nb_confettis := 0
 	for enfant in overlay.get_children():
 		if enfant is GPUParticles2D:
 			nb_confettis += 1
 	_check(nb_confettis == 3, "la victoire lance des confettis (%d émetteurs)" % nb_confettis)
-	_check(overlay != null and "Nouveau record" in overlay.sous_titre.text, "la victoire enregistre un record")
+	_check(overlay != null and tr("NOUVEAU_RECORD") in overlay.sous_titre.text, "la victoire enregistre un record")
 	_check(overlay != null and overlay.bouton_suivant.visible, "le bouton Niveau suivant est proposé")
 	_check(scores.meilleur_temps("metropole/facile") >= 0.0, "le record est persisté par niveau et difficulté")
 	scores.effacer()

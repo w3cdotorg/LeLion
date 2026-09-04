@@ -13,16 +13,16 @@ const TEXTURE_CONFETTI := preload("res://Assets/Sprites/circle_white.png")
 
 
 func afficher(victoire: bool, progression: float, temps: float) -> void:
-	titre.text = "VICTOIRE !" if victoire else "GAME OVER"
+	titre.text = tr("VICTOIRE") if victoire else tr("GAME_OVER")
 	titre.add_theme_color_override("font_color", COULEUR_VICTOIRE if victoire else COULEUR_DEFAITE)
 	var pourcent := int(round(progression * 100))
 	if victoire:
 		var rang: int = Scores.enregistrer(GameState.cle_score(), temps)
-		sous_titre.text = "Ville peinte à %d %% en %s" % [pourcent, GameState.formater_temps(temps)]
+		sous_titre.text = tr("VILLE_PEINTE_TEMPS") % [pourcent, GameState.formater_temps(temps)]
 		if rang == 0:
-			sous_titre.text += "   ·   Nouveau record !"
+			sous_titre.text += "   ·   " + tr("NOUVEAU_RECORD")
 	else:
-		sous_titre.text = "Ville peinte à %d %%" % pourcent
+		sous_titre.text = tr("VILLE_PEINTE") % pourcent
 
 	if victoire:
 		_lancer_confettis()

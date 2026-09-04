@@ -65,7 +65,7 @@ layout_mode = 2
 size_flags_vertical = 4
 theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
 theme_override_font_sizes/font_size = 26
-text = "★ GERBE XXL 8 s"
+text = ""
 
 [node name="Espace" type="Control" parent="Marge/Ligne"]
 layout_mode = 2
@@ -87,6 +87,6 @@ offset_right = 500.0
 offset_bottom = 130.0
 grow_horizontal = 2
 theme_override_font_sizes/font_size = 32
-text = "Attrape une pastille de couleur, puis maintiens Espace pour peindre la ville !"
+text = "INDICE_CLAVIER"
 horizontal_alignment = 1
 

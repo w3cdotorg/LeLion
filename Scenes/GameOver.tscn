@@ -30,13 +30,13 @@ alignment = 1
 [node name="Titre" type="Label" parent="Centre/Colonne"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 160
-text = "GAME OVER"
+text = "GAME_OVER"
 horizontal_alignment = 1
 
 [node name="SousTitre" type="Label" parent="Centre/Colonne"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 40
-text = "Ville peinte à 0 %"
+text = ""
 horizontal_alignment = 1
 
 [node name="Boutons" type="HBoxContainer" parent="Centre/Colonne"]
@@ -48,19 +48,19 @@ alignment = 1
 custom_minimum_size = Vector2(260, 64)
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
-text = "Niveau suivant"
+text = "NIVEAU_SUIVANT"
 
 [node name="Rejouer" type="Button" parent="Centre/Colonne/Boutons"]
 custom_minimum_size = Vector2(200, 64)
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
-text = "Rejouer"
+text = "REJOUER"
 
 [node name="Menu" type="Button" parent="Centre/Colonne/Boutons"]
 custom_minimum_size = Vector2(200, 64)
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
-text = "Menu"
+text = "MENU"
 
 [connection signal="pressed" from="Centre/Colonne/Boutons/Suivant" to="." method="_on_suivant_pressed"]
 [connection signal="pressed" from="Centre/Colonne/Boutons/Rejouer" to="." method="_on_rejouer_pressed"]

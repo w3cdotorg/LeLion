@@ -17,17 +17,14 @@ const SEUIL_VICTOIRE := 0.85
 const VIES_MAX := 3
 const DUREE_INVULNERABILITE := 1.5
 const DIFFICULTES: Array[Dictionary] = [
-	{"id": "facile", "nom": "Facile", "vies": 3, "pickups_coeur": true,
-		"description": "3 cœurs, des cœurs à ramasser"},
-	{"id": "moyen", "nom": "Moyen", "vies": 3, "pickups_coeur": false,
-		"description": "3 cœurs, sans rab"},
-	{"id": "hardcore", "nom": "Hardcore", "vies": 1, "pickups_coeur": false,
-		"description": "un seul coup et c'est fini"},
+	{"id": "facile", "nom": "DIFF_FACILE", "description": "DIFF_FACILE_DESC", "vies": 3, "pickups_coeur": true},
+	{"id": "moyen", "nom": "DIFF_MOYEN", "description": "DIFF_MOYEN_DESC", "vies": 3, "pickups_coeur": false},
+	{"id": "hardcore", "nom": "DIFF_HARDCORE", "description": "DIFF_HARDCORE_DESC", "vies": 1, "pickups_coeur": false},
 ]
 const NIVEAUX: Array[Dictionary] = [
-	{"id": "skyline", "nom": "Skyline", "texture": "res://Assets/Sprites/skyline_2000px.png"},
-	{"id": "metropole", "nom": "Métropole", "texture": "res://Assets/Sprites/skyline_metropole.png"},
-	{"id": "village", "nom": "Village", "texture": "res://Assets/Sprites/skyline_village.png", "boss": true},
+	{"id": "skyline", "nom": "NIVEAU_SKYLINE", "texture": "res://Assets/Sprites/skyline_2000px.png"},
+	{"id": "metropole", "nom": "NIVEAU_METROPOLE", "texture": "res://Assets/Sprites/skyline_metropole.png"},
+	{"id": "village", "nom": "NIVEAU_VILLAGE", "texture": "res://Assets/Sprites/skyline_village.png", "boss": true},
 ]
 
 var couleurs_debloquees: Array[Color] = []

@@ -51,7 +51,7 @@ horizontal_alignment = 1
 [node name="Accroche" type="Label" parent="Centre/Colonne"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
-text = "Colorie la ville en vomissant un arc-en-ciel. Évite la soucoupe et la coccinelle."
+text = "ACCROCHE"
 horizontal_alignment = 1
 
 [node name="Difficultes" type="HBoxContainer" parent="Centre/Colonne"]
@@ -64,9 +64,18 @@ layout_mode = 2
 theme_override_constants/separation = 24
 alignment = 1
 
+[node name="BoutonReglages" type="Button" parent="Centre/Colonne"]
+custom_minimum_size = Vector2(240, 56)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 26
+text = "REGLAGES"
+
 [node name="Aide" type="Label" parent="Centre/Colonne"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 0.7)
 theme_override_font_sizes/font_size = 22
-text = "Flèches / WASD : se déplacer   ·   Espace : vomir   ·   Échap : pause"
+text = "AIDE_CONTROLES"
 horizontal_alignment = 1
+
+[connection signal="pressed" from="Centre/Colonne/BoutonReglages" to="." method="ouvrir_reglages"]
