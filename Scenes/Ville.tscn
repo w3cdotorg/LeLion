@@ -11,7 +11,7 @@ shader_parameter/base_color = Color(0.2, 0.2, 0.2, 1)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0krw8"]
 size = Vector2(2003, 252)
 
-[node name="Ville" type="Node2D"]
+[node name="Ville" type="Node2D" groups=["ville"]]
 script = ExtResource("1_kncr7")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]

@@ -1,18 +1,15 @@
 extends Area2D
+## Ennemi : traverse l'écran de gauche à droite en ligne droite.
 
 @export var speed: float = 150.0
-@export var game_over_scene: PackedScene
 
 
 func _physics_process(delta: float) -> void:
-	position.y = 324
 	position.x += speed * delta
-	if position.x > 2000:
+	if position.x > get_viewport().get_visible_rect().size.x + 200:
 		queue_free()
 
 
 func _on_body_entered(body: Node2D) -> void:
-	body.queue_free()
-	var overlay := game_over_scene.instantiate()
-	get_tree().current_scene.add_child(overlay)
-	get_tree().paused = true
+	if body.is_in_group("lion"):
+		GameState.terminer_partie(false)

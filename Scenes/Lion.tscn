@@ -1,13 +1,9 @@
-[gd_scene load_steps=15 format=3 uid="uid://dmayuumv4a1gh"]
+[gd_scene load_steps=11 format=3 uid="uid://dmayuumv4a1gh"]
 
 [ext_resource type="Script" uid="uid://dh0gkc6tf8etc" path="res://Scripts/Lion.gd" id="1_3r2l0"]
 [ext_resource type="Texture2D" uid="uid://cmjsa80060vyw" path="res://Assets/Sprites/LionHead.png" id="1_kx51r"]
 [ext_resource type="Texture2D" uid="uid://cdj6ds4mocio4" path="res://Assets/Sprites/LionHeadVomit.png" id="2_3r2l0"]
-[ext_resource type="PackedScene" uid="uid://b4bdndd8cklie" path="res://Scenes/Soucoupe.tscn" id="3_c1tgt"]
-[ext_resource type="PackedScene" uid="uid://c4c5pimuankut" path="res://Scenes/Coccinelle.tscn" id="4_iklue"]
-[ext_resource type="PackedScene" uid="uid://c8c7a634fe6ju" path="res://Scenes/Ville.tscn" id="5_03dqy"]
-[ext_resource type="PackedScene" uid="uid://ccpm7pmwv1le5" path="res://Scenes/ColorPickup.tscn" id="5_ap63n"]
-[ext_resource type="Script" uid="uid://dmbxtsy64rnau" path="res://Scripts/gerbe_traceuse_2.gd" id="9_or3p1"]
+[ext_resource type="Script" uid="uid://dmbxtsy64rnau" path="res://Scripts/GerbeTraceuse.gd" id="9_or3p1"]
 
 [sub_resource type="Animation" id="Animation_r1xi6"]
 resource_name = "Idle"
@@ -67,51 +63,41 @@ radius = 63.1981
 [sub_resource type="CircleShape2D" id="CircleShape2D_03dqy"]
 radius = 62.0725
 
-[node name="Lion" type="Node2D"]
-
-[node name="LionHead" type="CharacterBody2D" parent="."]
+[node name="Lion" type="CharacterBody2D" groups=["lion"]]
 script = ExtResource("1_3r2l0")
-color_pickup_scene = ExtResource("5_ap63n")
-soucoupe_scene = ExtResource("3_c1tgt")
-coccinelle_scene = ExtResource("4_iklue")
-ville_scene = ExtResource("5_03dqy")
 
-[node name="Sprite2D" type="Sprite2D" parent="LionHead"]
+[node name="Sprite2D" type="Sprite2D" parent="."]
+z_index = 1
 position = Vector2(68, 67)
 texture = ExtResource("1_kx51r")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="LionHead"]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
 &"": SubResource("AnimationLibrary_iklue")
 }
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="LionHead"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(68, 66)
 shape = SubResource("CircleShape2D_3r2l0")
 
-[node name="VomiTimer" type="Timer" parent="LionHead"]
+[node name="VomiTimer" type="Timer" parent="."]
 wait_time = 0.2
 one_shot = true
 
-[node name="VomiParticlesContainer" type="Node2D" parent="LionHead"]
+[node name="VomiParticlesContainer" type="Node2D" parent="."]
 z_index = 2
 position = Vector2(68, 66)
 
-[node name="PickupTimer1" type="Timer" parent="LionHead"]
-one_shot = true
-
-[node name="GerbeTraceuse2" type="Area2D" parent="LionHead"]
-process_mode = 3
+[node name="GerbeTraceuse" type="Area2D" parent="."]
 position = Vector2(70, 68)
 collision_mask = 8
+monitoring = false
 script = ExtResource("9_or3p1")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="LionHead/GerbeTraceuse2"]
-process_mode = 3
+[node name="CollisionShape2D" type="CollisionShape2D" parent="GerbeTraceuse"]
 shape = SubResource("CircleShape2D_03dqy")
 
-[node name="Bouche" type="Marker2D" parent="LionHead"]
+[node name="Bouche" type="Marker2D" parent="."]
 position = Vector2(186, 191)
 
-[connection signal="timeout" from="LionHead/VomiTimer" to="LionHead" method="_on_vomi_timer_timeout"]
-[connection signal="timeout" from="LionHead/PickupTimer1" to="LionHead" method="_on_pickup_timer_1_timeout"]
+[connection signal="timeout" from="VomiTimer" to="." method="_on_vomi_timer_timeout"]

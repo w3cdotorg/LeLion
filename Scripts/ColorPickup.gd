@@ -1,21 +1,15 @@
 extends Area2D
+## Pastille qui débloque une couleur de l'arc-en-ciel quand le lion la touche.
 
-@export var couleur_index: int = 1
-
-var couleurs_arc_en_ciel: Array[Color] = [
-	Color.RED, Color.ORANGE, Color.YELLOW, Color.GREEN,
-	Color.CYAN, Color.BLUE, Color.VIOLET,
-]
+@export var couleur_index: int = 0
 
 
 func _ready() -> void:
-	$Sprite2D.modulate = couleurs_arc_en_ciel[couleur_index]
+	$Sprite2D.modulate = GameState.couleur(couleur_index)
 
 
 func _on_body_entered(body: Node2D) -> void:
-	if not body.has_method("debloquer_couleur"):
+	if not body.is_in_group("lion"):
 		return
-	body.debloquer_couleur(couleur_index)
-	if body.has_method("lancer_pickup_suivant"):
-		body.lancer_pickup_suivant(couleur_index)
+	GameState.debloquer_couleur(couleur_index)
 	queue_free()

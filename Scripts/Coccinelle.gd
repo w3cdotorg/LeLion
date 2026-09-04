@@ -1,6 +1,5 @@
 extends Area2D
-
-@export var game_over_scene: PackedScene
+## Ennemi : traverse l'écran de droite à gauche en zigzag de plus en plus ample.
 
 var speed: float
 var frequency: float
@@ -39,7 +38,5 @@ func _physics_process(delta: float) -> void:
 
 
 func _on_body_entered(body: Node2D) -> void:
-	body.queue_free()
-	var overlay := game_over_scene.instantiate()
-	get_tree().current_scene.add_child(overlay)
-	get_tree().paused = true
+	if body.is_in_group("lion"):
+		GameState.terminer_partie(false)

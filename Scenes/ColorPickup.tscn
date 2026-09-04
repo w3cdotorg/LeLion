@@ -4,16 +4,16 @@
 [ext_resource type="Script" uid="uid://b7geqq08piqgo" path="res://Scripts/ColorPickup.gd" id="2_68htu"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_gk2im"]
+radius = 28.0
 
 [node name="ColorPickup" type="Area2D"]
 script = ExtResource("2_68htu")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(195, 54)
-shape = SubResource("CircleShape2D_gk2im")
-
 [node name="Sprite2D" type="Sprite2D" parent="."]
-position = Vector2(195, 54)
+scale = Vector2(4, 4)
 texture = ExtResource("1_ejic6")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_gk2im")
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
