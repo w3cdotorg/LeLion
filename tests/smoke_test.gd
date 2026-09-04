@@ -41,6 +41,18 @@ func _run() -> void:
 	var lion: CharacterBody2D = main.get_node("Lion")
 	var spawner: Node = main.get_node("Spawner")
 	_check(GS.partie_en_cours, "partie en cours après Main._ready")
+	_check(root.get_node_or_null("Audio") != null, "autoload Audio présent")
+
+	# Pause via l'action "pause"
+	var ev := InputEventAction.new()
+	ev.action = "pause"
+	ev.pressed = true
+	Input.parse_input_event(ev)
+	await _frames(2)
+	_check(paused and main.get_node("HUD").etiquette_pause.visible, "Échap met en pause et affiche PAUSE")
+	Input.parse_input_event(ev)
+	await _frames(2)
+	_check(not paused and not main.get_node("HUD").etiquette_pause.visible, "Échap relance la partie")
 	var nb_cellules: int = ville.grille_taille.x * ville.grille_taille.y
 	_check(ville.cellules_peignables > 0 and ville.cellules_peignables < nb_cellules,
 		"cellules peignables = zones opaques de la skyline (%d / %d)" % [ville.cellules_peignables, nb_cellules])
@@ -61,6 +73,7 @@ func _run() -> void:
 	Input.action_press("vomir")
 	await _frames(30)
 	_check(lion.est_en_train_de_vomir, "le lion vomit tant que l'action est maintenue")
+	_check(root.get_node("Audio")._vomi.playing, "la boucle sonore de vomi tourne")
 	_check(ville.cellules_peintes > 0, "la ville a été peinte (%d cellules)" % ville.cellules_peintes)
 	_check(GS.progression > 0.0, "la progression est remontée dans GameState (%.4f)" % GS.progression)
 	_check(hud.progression.value > 0.0, "la barre de progression du HUD bouge")
@@ -103,4 +116,6 @@ func _run() -> void:
 	_check(overlay != null and overlay.titre.text == "VICTOIRE !", "l'overlay affiche VICTOIRE")
 
 	print("== %d échec(s) ==" % _echecs)
+	paused = false
+	main.free()
 	quit(1 if _echecs > 0 else 0)

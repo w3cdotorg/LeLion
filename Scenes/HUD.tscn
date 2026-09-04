@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://Scripts/HUD.gd" id="1_hud"]
 
 [node name="HUD" type="CanvasLayer"]
+process_mode = 3
 layer = 5
 script = ExtResource("1_hud")
 
@@ -66,3 +67,21 @@ grow_horizontal = 2
 theme_override_font_sizes/font_size = 32
 text = "Attrape une pastille de couleur, puis maintiens Espace pour peindre la ville !"
 horizontal_alignment = 1
+
+[node name="Pause" type="Label" parent="."]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -400.0
+offset_top = -80.0
+offset_right = 400.0
+offset_bottom = 80.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 120
+text = "PAUSE"
+horizontal_alignment = 1
+vertical_alignment = 1

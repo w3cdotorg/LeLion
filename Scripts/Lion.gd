@@ -1,15 +1,24 @@
 extends CharacterBody2D
 ## Le lion : déplacement, gerbe de vomi multicolore, traceuse de peinture.
+## La gerbe part de la bouche à 45° vers le bas ; la traceuse est placée au point de
+## chute calculé avec la même physique que les particules.
 
-const SPREAD_ANGLE_DEG := 30.0
-const PARTICULES_PAR_COULEUR := 1500
+const ANGLE_GERBE_DEG := 45.0
+const ECART_EVENTAIL_DEG := 24.0
+const VITESSE_GERBE := 320.0
+const GRAVITE_GERBE := 300.0
+const DUREE_GERBE := 0.6
+const PARTICULES_PAR_COULEUR := 400
+const RAYON_TRACEUSE := Vector2i(16, 46)  # min, max
+const TEXTURE_PARTICULE := preload("res://Assets/Sprites/circle_white.png")
+const BOUCHE_X_DROITE := 89.0
+const BOUCHE_X_GAUCHE := 47.0
 
 @export var speed: float = 350.0
 
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var anim: AnimationPlayer = $AnimationPlayer
 @onready var vomi_container: Node2D = $VomiParticlesContainer
-@onready var vomi_timer: Timer = $VomiTimer
 @onready var gerbe_traceuse: Area2D = $GerbeTraceuse
 @onready var traceuse_shape: CollisionShape2D = $GerbeTraceuse/CollisionShape2D
 @onready var bouche: Marker2D = $Bouche
@@ -20,6 +29,7 @@ var direction_du_lion: int = 1  # 1 = droite, -1 = gauche
 
 func _ready() -> void:
 	GameState.couleur_debloquee.connect(_on_couleur_debloquee)
+	_appliquer_direction()
 	mettre_a_jour_degrade_vomi()
 
 
@@ -30,9 +40,7 @@ func _physics_process(_delta: float) -> void:
 		var nouvelle_direction := 1 if input_vector.x > 0 else -1
 		if nouvelle_direction != direction_du_lion:
 			direction_du_lion = nouvelle_direction
-			sprite.scale.x = direction_du_lion
-			bouche.position.x = 150 if direction_du_lion > 0 else -30
-			mettre_a_jour_traceuse()
+			_appliquer_direction()
 
 	velocity = input_vector * speed
 	move_and_slide()
@@ -44,9 +52,6 @@ func _physics_process(_delta: float) -> void:
 
 
 func _process(_delta: float) -> void:
-	if est_en_train_de_vomir:
-		mettre_a_jour_traceuse()
-
 	if Input.is_action_pressed("vomir"):
 		if not est_en_train_de_vomir:
 			demarrer_vomi()
@@ -58,99 +63,95 @@ func _on_couleur_debloquee(_couleur: Color) -> void:
 	mettre_a_jour_degrade_vomi()
 
 
+## Retourne le sprite, déplace la bouche et réoriente gerbe et traceuse.
+func _appliquer_direction() -> void:
+	sprite.scale.x = direction_du_lion
+	bouche.position.x = BOUCHE_X_DROITE if direction_du_lion > 0 else BOUCHE_X_GAUCHE
+	vomi_container.position = bouche.position
+	_orienter_emetteurs()
+	_placer_traceuse()
+
+
+func _angle_gerbe(index: int, count: int) -> float:
+	var base := ANGLE_GERBE_DEG if direction_du_lion > 0 else 180.0 - ANGLE_GERBE_DEG
+	var offset: float = lerp(-ECART_EVENTAIL_DEG / 2, ECART_EVENTAIL_DEG / 2, float(index) / max(count - 1, 1))
+	return deg_to_rad(base + offset * direction_du_lion)
+
+
+## Point de chute d'une particule tirée à 45° (même physique que le ParticleProcessMaterial).
+func _point_de_chute() -> Vector2:
+	var v := Vector2.from_angle(deg_to_rad(ANGLE_GERBE_DEG)) * VITESSE_GERBE
+	var chute := Vector2(v.x * DUREE_GERBE, v.y * DUREE_GERBE + 0.5 * GRAVITE_GERBE * DUREE_GERBE * DUREE_GERBE)
+	chute.x *= direction_du_lion
+	return bouche.position + chute
+
+
+func _placer_traceuse() -> void:
+	gerbe_traceuse.position = _point_de_chute()
+	if traceuse_shape.shape is CircleShape2D:
+		var n := GameState.couleurs_debloquees.size()
+		traceuse_shape.shape.radius = clamp(RAYON_TRACEUSE.x + n * 5, RAYON_TRACEUSE.x, RAYON_TRACEUSE.y)
+
+
+func _orienter_emetteurs() -> void:
+	var emitters := vomi_container.get_children()
+	for index in range(emitters.size()):
+		var mat := emitters[index].process_material as ParticleProcessMaterial
+		if mat != null:
+			var angle := _angle_gerbe(index, emitters.size())
+			mat.direction = Vector3(cos(angle), sin(angle), 0)
+
+
+## Reconstruit un émetteur par couleur débloquée.
 func mettre_a_jour_degrade_vomi() -> void:
 	for child in vomi_container.get_children():
 		vomi_container.remove_child(child)
 		child.queue_free()
 
-	var couleurs := GameState.couleurs_debloquees
-	var n := couleurs.size()
-	var base_angle := deg_to_rad(0) if direction_du_lion > 0 else deg_to_rad(180)
-
-	for i in range(n):
+	for couleur in GameState.couleurs_debloquees:
 		var gradient := Gradient.new()
-		gradient.add_point(0.0, couleurs[i])
-		gradient.add_point(1.0, couleurs[i])
+		gradient.set_color(0, couleur)
+		gradient.set_color(1, Color(couleur, 0.0))
+		gradient.add_point(0.75, couleur)
 		var gradient_texture := GradientTexture1D.new()
 		gradient_texture.gradient = gradient
-		gradient_texture.width = 256
 
-		var final_angle := base_angle + deg_to_rad(_angle_offset(i, n))
 		var material := ParticleProcessMaterial.new()
 		material.color_ramp = gradient_texture
-		material.direction = Vector3(cos(final_angle), sin(final_angle), 0).normalized()
-		material.spread = 10.0
-		material.initial_velocity_min = 200
-		material.initial_velocity_max = 300
+		material.spread = 6.0
+		material.initial_velocity_min = VITESSE_GERBE * 0.9
+		material.initial_velocity_max = VITESSE_GERBE * 1.1
+		material.gravity = Vector3(0, GRAVITE_GERBE, 0)
+		material.scale_min = 0.6
+		material.scale_max = 1.4
 
 		var emitter := GPUParticles2D.new()
+		emitter.texture = TEXTURE_PARTICULE
 		emitter.process_material = material
 		emitter.amount = PARTICULES_PAR_COULEUR
-		emitter.lifetime = 1
-		emitter.one_shot = true
-		emitter.emitting = false
+		emitter.lifetime = DUREE_GERBE
+		emitter.emitting = est_en_train_de_vomir
 		vomi_container.add_child(emitter)
 
-	if est_en_train_de_vomir:
-		for emitter in vomi_container.get_children():
-			emitter.emitting = true
-
-
-func _angle_offset(index: int, count: int) -> float:
-	return lerp(-SPREAD_ANGLE_DEG / 2, SPREAD_ANGLE_DEG / 2, float(index) / max(count - 1, 1))
-
-
-func mettre_a_jour_traceuse() -> void:
-	var n := GameState.couleurs_debloquees.size()
-	if n == 0:
-		return
-
-	var base_angle := deg_to_rad(45) if direction_du_lion > 0 else deg_to_rad(135)
-	var direction_2d := Vector2(cos(base_angle), sin(base_angle))
-	var correction_x := 20.0 if direction_du_lion > 0 else -20.0
-	var origine := bouche.global_position + Vector2(correction_x, 0)
-
-	gerbe_traceuse.global_position = origine + direction_2d * 100.0
-	gerbe_traceuse.rotation = direction_2d.angle()
-	if traceuse_shape.shape is CircleShape2D:
-		traceuse_shape.shape.radius = clamp(10 + n * 5, 10, 50)
-
-	var emitters := vomi_container.get_children()
-	var count := emitters.size()
-	for index in range(count):
-		var mat := emitters[index].process_material as ParticleProcessMaterial
-		if mat == null:
-			continue
-		var visual_index := (count - 1 - index) if direction_du_lion < 0 else index
-		var final_angle := base_angle + deg_to_rad(_angle_offset(visual_index, count))
-		mat.direction = Vector3(cos(final_angle), sin(final_angle), 0).normalized()
+	_orienter_emetteurs()
+	_placer_traceuse()
 
 
 func demarrer_vomi() -> void:
 	if GameState.couleurs_debloquees.is_empty():
 		return
-
 	est_en_train_de_vomir = true
 	gerbe_traceuse.monitoring = true
-	if anim.current_animation != "Vomit":
-		anim.play("Vomit")
-
+	anim.play("Vomit")
+	Audio.demarrer_vomi()
 	for emitter in vomi_container.get_children():
-		emitter.restart()
-	mettre_a_jour_traceuse()
-	vomi_timer.start()
+		emitter.emitting = true
 
 
 func arreter_vomi() -> void:
 	est_en_train_de_vomir = false
-	anim.play("Idle")
 	gerbe_traceuse.monitoring = false
+	anim.play("Idle")
+	Audio.arreter_vomi()
 	for emitter in vomi_container.get_children():
 		emitter.emitting = false
-
-
-func _on_vomi_timer_timeout() -> void:
-	if Input.is_action_pressed("vomir"):
-		demarrer_vomi()
-	else:
-		arreter_vomi()

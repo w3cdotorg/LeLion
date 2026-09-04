@@ -9,6 +9,7 @@ const COULEUR_VERROUILLEE := Color(1, 1, 1, 0.15)
 @onready var couleurs: HBoxContainer = $Marge/Ligne/Couleurs
 @onready var chrono: Label = $Marge/Ligne/Chrono
 @onready var indice: Label = $Indice
+@onready var etiquette_pause: Label = $Pause
 
 var _pastilles: Array[ColorRect] = []
 
@@ -32,10 +33,22 @@ func _process(_delta: float) -> void:
 	chrono.text = GameState.formater_temps(GameState.temps_ecoule)
 
 
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("pause") and GameState.partie_en_cours:
+		basculer_pause()
+		get_viewport().set_input_as_handled()
+
+
+func basculer_pause() -> void:
+	var en_pause := not get_tree().paused
+	get_tree().paused = en_pause
+	etiquette_pause.visible = en_pause
+
+
 func _on_progression_changee(ratio: float) -> void:
 	var valeur := ratio * 100.0
 	progression.value = valeur
-	pourcent.text = "%d %%" % int(valeur)
+	pourcent.text = "%d %%" % int(round(valeur))
 
 
 func _on_couleur_debloquee(couleur: Color) -> void:

@@ -5,7 +5,7 @@ extends Node2D
 
 const TAILLE_CELLULE := 8
 const NB_TAMPONS := 4
-const DENSITE_TAMPON := 0.35
+const DENSITE_TAMPON := 0.5
 
 @onready var sprite: Sprite2D = $Sprite2D
 

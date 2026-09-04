@@ -80,16 +80,12 @@ libraries = {
 position = Vector2(68, 66)
 shape = SubResource("CircleShape2D_3r2l0")
 
-[node name="VomiTimer" type="Timer" parent="."]
-wait_time = 0.2
-one_shot = true
-
 [node name="VomiParticlesContainer" type="Node2D" parent="."]
 z_index = 2
-position = Vector2(68, 66)
+position = Vector2(89, 103)
 
 [node name="GerbeTraceuse" type="Area2D" parent="."]
-position = Vector2(70, 68)
+position = Vector2(225, 293)
 collision_mask = 8
 monitoring = false
 script = ExtResource("9_or3p1")
@@ -98,6 +94,4 @@ script = ExtResource("9_or3p1")
 shape = SubResource("CircleShape2D_03dqy")
 
 [node name="Bouche" type="Marker2D" parent="."]
-position = Vector2(186, 191)
-
-[connection signal="timeout" from="VomiTimer" to="." method="_on_vomi_timer_timeout"]
+position = Vector2(89, 103)

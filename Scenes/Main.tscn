@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://dlelionmain00"]
+[gd_scene load_steps=9 format=3 uid="uid://dlelionmain00"]
 
 [ext_resource type="Script" path="res://Scripts/Main.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://c8c7a634fe6ju" path="res://Scenes/Ville.tscn" id="2_ville"]
@@ -7,9 +7,23 @@
 [ext_resource type="PackedScene" uid="uid://33sfcdosvxjl" path="res://Scenes/GameOver.tscn" id="5_gameover"]
 [ext_resource type="PackedScene" uid="uid://dlelionhud000" path="res://Scenes/HUD.tscn" id="6_hud"]
 
+[sub_resource type="Gradient" id="Gradient_ciel"]
+offsets = PackedFloat32Array(0, 0.55, 1)
+colors = PackedColorArray(0.09, 0.1, 0.24, 1, 0.42, 0.25, 0.43, 1, 0.9, 0.5, 0.32, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_ciel"]
+gradient = SubResource("Gradient_ciel")
+fill_to = Vector2(0, 1)
+
 [node name="Main" type="Node2D"]
 script = ExtResource("1_main")
 game_over_scene = ExtResource("5_gameover")
+
+[node name="Ciel" type="TextureRect" parent="."]
+z_index = -10
+offset_right = 2000.0
+offset_bottom = 648.0
+texture = SubResource("GradientTexture2D_ciel")
 
 [node name="Ville" parent="." instance=ExtResource("2_ville")]
 
