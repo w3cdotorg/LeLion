@@ -3,7 +3,7 @@ extends Control
 ## Les niveaux affichent le record pour la difficulté choisie.
 
 const SCENE_JEU := "res://Scenes/Main.tscn"
-const DELAI_DEMO := 20.0
+const DELAI_DEMO := 15.0
 const SCENE_REGLAGES := preload("res://Scenes/Reglages.tscn")
 
 @onready var difficultes: HBoxContainer = $Centre/Colonne/RangeeDifficulte/Difficultes

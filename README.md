@@ -34,7 +34,7 @@ then Hardcore, with a cumulated time and its own best time. Every stage opens on
 "READY? VOMIT!" intro, and a defeat brings up an arcade-style "CONTINUE?" countdown: press
 the puke button to retry, or let it run out to see the summary.
 
-Leave the title screen alone for twenty seconds and the game plays itself (attract mode);
+Leave the title screen alone for fifteen seconds and the game plays itself (attract mode);
 any key or tap brings the title back. The chiptune soundtrack is layered: the arpeggios join
 in at a third of the way to victory, the melody at two thirds, and the Village level has its own
 minor-key theme for the painter.
