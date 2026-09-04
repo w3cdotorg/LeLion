@@ -1,28 +1,38 @@
 extends Node2D
 ## La ville : masque de peinture RGBA appliqué par shader sur la skyline.
-## Seuls les pixels opaques de la skyline comptent dans la progression.
+## La peinture se fait par tampons multicolores (blit natif). La progression est
+## comptée sur une grille de cellules ne couvrant que les zones opaques de la skyline.
+
+const TAILLE_CELLULE := 8
+const NB_TAMPONS := 4
+const DENSITE_TAMPON := 0.35
 
 @onready var sprite: Sprite2D = $Sprite2D
 
 var tex_size: Vector2i
 var image: Image
 var texture: ImageTexture
-var pixels_peignables := 0
-var pixels_peints := 0
-var _masque_peignable: PackedByteArray
+
+var grille_taille: Vector2i
+var cellules_peignables := 0
+var cellules_peintes := 0
+var _cellules_peignables: PackedByteArray
+var _cellules_peintes: PackedByteArray
+
 var _dirty := false
+var _tampons: Array[Image] = []
+var _tampons_rayon := -1
+var _tampons_nb_couleurs := -1
 
 
 func _ready() -> void:
 	tex_size = Vector2i(sprite.texture.get_width(), sprite.texture.get_height())
-	_calculer_pixels_peignables()
+	_calculer_cellules_peignables()
 
 	image = Image.create(tex_size.x, tex_size.y, false, Image.FORMAT_RGBA8)
 	image.fill(Color(0, 0, 0, 0))
 	texture = ImageTexture.create_from_image(image)
-
-	var mat := sprite.material as ShaderMaterial
-	mat.set_shader_parameter("paint_mask", texture)
+	(sprite.material as ShaderMaterial).set_shader_parameter("paint_mask", texture)
 
 
 func _process(_delta: float) -> void:
@@ -33,52 +43,91 @@ func _process(_delta: float) -> void:
 
 
 func progression() -> float:
-	return float(pixels_peints) / max(pixels_peignables, 1)
+	return float(cellules_peintes) / max(cellules_peignables, 1)
 
 
-func _calculer_pixels_peignables() -> void:
-	_masque_peignable.resize(tex_size.x * tex_size.y)
+## Une cellule est peignable si la skyline y est opaque à plus de 15 % (moyenne).
+func _calculer_cellules_peignables() -> void:
+	grille_taille = Vector2i(ceili(tex_size.x / float(TAILLE_CELLULE)), ceili(tex_size.y / float(TAILLE_CELLULE)))
+	var nb := grille_taille.x * grille_taille.y
+	_cellules_peignables.resize(nb)
+	_cellules_peintes.resize(nb)
+	_cellules_peintes.fill(0)
+
 	var source: Image = sprite.texture.get_image()
 	if source == null:
-		_masque_peignable.fill(1)
-		pixels_peignables = tex_size.x * tex_size.y
+		_cellules_peignables.fill(1)
+		cellules_peignables = nb
 		return
-	for y in range(tex_size.y):
-		for x in range(tex_size.x):
-			var opaque := source.get_pixel(x, y).a > 0.05
-			_masque_peignable[y * tex_size.x + x] = 1 if opaque else 0
-			if opaque:
-				pixels_peignables += 1
+
+	var reduite: Image = source.duplicate()
+	reduite.resize(grille_taille.x, grille_taille.y, Image.INTERPOLATE_TRILINEAR)
+	for cy in range(grille_taille.y):
+		for cx in range(grille_taille.x):
+			var peignable := reduite.get_pixel(cx, cy).a > 0.15
+			_cellules_peignables[cy * grille_taille.x + cx] = 1 if peignable else 0
+			if peignable:
+				cellules_peignables += 1
 
 
-## Peint un disque de rayon `radius` autour d'une position globale, avec une couleur
-## tirée au hasard par pixel dans `couleurs`.
-func peindre(position_globale: Vector2, radius: int, couleurs: Array[Color]) -> void:
-	if couleurs.is_empty():
+## Applique un tampon de peinture de rayon `rayon` centré sur une position globale.
+func peindre(position_globale: Vector2, rayon: int, couleurs: Array[Color]) -> void:
+	if couleurs.is_empty() or rayon <= 0:
 		return
 	var local := sprite.to_local(position_globale)
-	var texture_size := sprite.texture.get_size()
-	var uv := (local + texture_size / 2) / texture_size
-	if uv.x < 0.0 or uv.x > 1.0 or uv.y < 0.0 or uv.y > 1.0:
+	var px := int(local.x + tex_size.x / 2.0)
+	var py := int(local.y + tex_size.y / 2.0)
+	if px < -rayon or py < -rayon or px >= tex_size.x + rayon or py >= tex_size.y + rayon:
 		return
 
-	var px := int(uv.x * tex_size.x)
-	var py := int(uv.y * tex_size.y)
-	var r2 := radius * radius
+	_assurer_tampons(rayon, couleurs)
+	var tampon := _tampons[randi() % _tampons.size()]
+	var taille := tampon.get_width()
+	image.blit_rect_mask(tampon, tampon, Rect2i(0, 0, taille, taille), Vector2i(px - rayon, py - rayon))
+	_marquer_cellules(px, py, rayon)
+	_dirty = true
 
-	for dx in range(-radius, radius + 1):
-		for dy in range(-radius, radius + 1):
+
+func _marquer_cellules(px: int, py: int, rayon: int) -> void:
+	var r_effectif := rayon * 0.8
+	var r2 := r_effectif * r_effectif
+	var cx_min: int = max(0, (px - rayon) / TAILLE_CELLULE)
+	var cx_max: int = min(grille_taille.x - 1, (px + rayon) / TAILLE_CELLULE)
+	var cy_min: int = max(0, (py - rayon) / TAILLE_CELLULE)
+	var cy_max: int = min(grille_taille.y - 1, (py + rayon) / TAILLE_CELLULE)
+	for cy in range(cy_min, cy_max + 1):
+		var dy := (cy + 0.5) * TAILLE_CELLULE - py
+		for cx in range(cx_min, cx_max + 1):
+			var dx := (cx + 0.5) * TAILLE_CELLULE - px
 			if dx * dx + dy * dy > r2:
 				continue
-			var nx := px + dx
-			var ny := py + dy
-			if nx < 0 or ny < 0 or nx >= tex_size.x or ny >= tex_size.y:
-				continue
-			if _masque_peignable[ny * tex_size.x + nx] == 0:
-				continue
-			if image.get_pixel(nx, ny).a == 0.0:
-				pixels_peints += 1
-			var c := couleurs[randi() % couleurs.size()]
-			c.a = 1.0
-			image.set_pixel(nx, ny, c)
-	_dirty = true
+			var i := cy * grille_taille.x + cx
+			if _cellules_peignables[i] == 1 and _cellules_peintes[i] == 0:
+				_cellules_peintes[i] = 1
+				cellules_peintes += 1
+
+
+## Régénère les tampons quand le rayon ou le nombre de couleurs change.
+func _assurer_tampons(rayon: int, couleurs: Array[Color]) -> void:
+	if rayon == _tampons_rayon and couleurs.size() == _tampons_nb_couleurs:
+		return
+	_tampons_rayon = rayon
+	_tampons_nb_couleurs = couleurs.size()
+	_tampons.clear()
+	var taille := rayon * 2 + 1
+	for t in range(NB_TAMPONS):
+		var tampon := Image.create(taille, taille, false, Image.FORMAT_RGBA8)
+		tampon.fill(Color(0, 0, 0, 0))
+		for y in range(taille):
+			for x in range(taille):
+				var dx := x - rayon
+				var dy := y - rayon
+				var d := sqrt(dx * dx + dy * dy) / rayon
+				if d > 1.0:
+					continue
+				# Plus dense au centre, éparse sur les bords.
+				if randf() < DENSITE_TAMPON * (1.3 - d):
+					var c := couleurs[randi() % couleurs.size()]
+					c.a = 1.0
+					tampon.set_pixel(x, y, c)
+		_tampons.append(tampon)

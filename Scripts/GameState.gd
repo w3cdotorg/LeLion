@@ -1,5 +1,6 @@
 extends Node
-## État global d'une partie : couleurs débloquées, progression de la peinture, fin de partie.
+## État global d'une partie : couleurs débloquées, progression de la peinture,
+## chrono, fin de partie.
 
 signal couleur_debloquee(couleur: Color)
 signal progression_changee(ratio: float)
@@ -9,21 +10,32 @@ const COULEURS_ARC_EN_CIEL: Array[Color] = [
 	Color.RED, Color.ORANGE, Color.YELLOW, Color.GREEN,
 	Color.CYAN, Color.BLUE, Color.VIOLET,
 ]
-const SEUIL_VICTOIRE := 0.9
+const SEUIL_VICTOIRE := 0.85
 
 var couleurs_debloquees: Array[Color] = []
 var progression := 0.0
+var temps_ecoule := 0.0
 var partie_en_cours := false
+
+
+func _process(delta: float) -> void:
+	if partie_en_cours:
+		temps_ecoule += delta
 
 
 func nouvelle_partie() -> void:
 	couleurs_debloquees.clear()
 	progression = 0.0
+	temps_ecoule = 0.0
 	partie_en_cours = true
 
 
 func couleur(index: int) -> Color:
 	return COULEURS_ARC_EN_CIEL[index]
+
+
+func nb_couleurs_total() -> int:
+	return COULEURS_ARC_EN_CIEL.size()
 
 
 func debloquer_couleur(index: int) -> bool:
@@ -42,10 +54,6 @@ func prochain_index_couleur() -> int:
 	return i if i < COULEURS_ARC_EN_CIEL.size() else -1
 
 
-func couleur_aleatoire() -> Color:
-	return couleurs_debloquees[randi() % couleurs_debloquees.size()]
-
-
 func signaler_progression(ratio: float) -> void:
 	progression = ratio
 	progression_changee.emit(ratio)
@@ -58,3 +66,8 @@ func terminer_partie(victoire: bool) -> void:
 		return
 	partie_en_cours = false
 	partie_terminee.emit(victoire)
+
+
+static func formater_temps(secondes: float) -> String:
+	var total := int(secondes)
+	return "%d:%02d" % [total / 60, total % 60]

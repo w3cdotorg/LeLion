@@ -4,7 +4,7 @@ extends CharacterBody2D
 const SPREAD_ANGLE_DEG := 30.0
 const PARTICULES_PAR_COULEUR := 1500
 
-@export var speed: float = 200.0
+@export var speed: float = 350.0
 
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var anim: AnimationPlayer = $AnimationPlayer

@@ -24,4 +24,5 @@ func _on_partie_terminee(victoire: bool) -> void:
 		lion.hide()
 	var overlay := game_over_scene.instantiate()
 	add_child(overlay)
+	overlay.afficher(victoire, GameState.progression, GameState.temps_ecoule)
 	get_tree().paused = true
