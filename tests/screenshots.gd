@@ -26,6 +26,11 @@ func _shot(nom: String) -> void:
 
 func _run() -> void:
 	GS = root.get_node("GameState")
+	var titre: Control = load("res://Scenes/Titre.tscn").instantiate()
+	root.add_child(titre)
+	await _attendre(0.2)
+	await _shot("00_titre")
+	titre.free()
 	var main: Node = load("res://Scenes/Main.tscn").instantiate()
 	root.add_child(main)
 	current_scene = main
@@ -58,6 +63,8 @@ func _run() -> void:
 	Input.action_release("deplacer_gauche")
 	spawner.spawn_soucoupe(300)
 	spawner.spawn_coccinelle(250)
+	spawner.spawn_bonus(Vector2(1300, 220))
+	GS.activer_bonus(8.0)
 	await _attendre(0.75)
 	await _shot("03_vomi_gauche_7_couleurs_ennemis")
 	Input.action_release("vomir")
