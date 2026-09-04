@@ -42,6 +42,8 @@ func _ready() -> void:
 	GameState.lion_touche.connect(_on_lion_touche)
 	GameState.progression_changee.connect(_on_progression_changee)
 	GameState.couleur_debloquee.connect(_on_couleur_debloquee)
+	if DisplayServer.is_touchscreen_available():
+		indice.text = "Attrape une pastille de couleur, puis maintiens VOMIR pour peindre la ville !"
 	_on_progression_changee(GameState.progression)
 	for c in GameState.couleurs_debloquees:
 		_on_couleur_debloquee(c)

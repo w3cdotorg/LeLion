@@ -148,8 +148,21 @@ def coeur(taille=64):
     t.png(DOSSIER / "coeur.png", couleur=(255, 255, 255))
 
 
+def anneau(taille=160, epaisseur=10):
+    """Anneau blanc semi-plein pour les boutons tactiles (à teinter par modulate)."""
+    t = Toile(taille, taille)
+    c = taille / 2
+    for y in range(taille):
+        for x in range(taille):
+            r = math.hypot(x - c + 0.5, y - c + 0.5)
+            if r <= c:
+                t.a[y][x] = 255 if r >= c - epaisseur else 90
+    t.png(DOSSIER / "anneau.png", couleur=(255, 255, 255))
+
+
 if __name__ == "__main__":
     metropole()
     village()
     etoile()
     coeur()
+    anneau()
