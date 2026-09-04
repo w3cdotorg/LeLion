@@ -17,6 +17,7 @@ var boutons_langue: Dictionary = {}
 func _ready() -> void:
 	musique.set_value_no_signal(Parametres.musique)
 	effets.set_value_no_signal(Parametres.effets)
+	Styles.appliquer_selection(plein_ecran)
 	plein_ecran.set_pressed_no_signal(Parametres.plein_ecran)
 	plein_ecran.text = "ON" if Parametres.plein_ecran else "OFF"
 	for code in Parametres.LANGUES:
@@ -25,6 +26,7 @@ func _ready() -> void:
 		bouton.text = NOMS_LANGUES[code]
 		bouton.custom_minimum_size = Vector2(160, 44)
 		bouton.add_theme_font_size_override("font_size", 26)
+		Styles.appliquer_selection(bouton)
 		bouton.pressed.connect(_choisir_langue.bind(code))
 		langues.add_child(bouton)
 		boutons_langue[code] = bouton

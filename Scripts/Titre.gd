@@ -42,6 +42,7 @@ func _bouton_choix(taille: Vector2, taille_police: int) -> Button:
 	bouton.toggle_mode = true
 	bouton.custom_minimum_size = taille
 	bouton.add_theme_font_size_override("font_size", taille_police)
+	Styles.appliquer_selection(bouton)
 	return bouton
 
 

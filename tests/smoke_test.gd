@@ -82,6 +82,8 @@ func _run() -> void:
 	_check(GS.difficulte_courante == 2 and titre.boutons_difficulte[2].button_pressed, "l'écran titre restaure la difficulté sauvegardée")
 	_check(GS.niveau_courant == 1 and titre.boutons[1].button_pressed and not titre.boutons[0].button_pressed, "l'écran titre restaure le dernier niveau, sélectionné")
 	_check(titre.bouton_jouer.has_focus(), "le bouton Jouer a le focus au départ")
+	var style_selection: StyleBox = titre.boutons[1].get_theme_stylebox("pressed")
+	_check(style_selection is StyleBoxFlat and style_selection.border_color == Styles.JAUNE, "le niveau sélectionné a une bordure jaune")
 	titre.choisir_niveau(2)
 	_check(GS.niveau_courant == 2 and int(scores.preference("niveau", -1)) == 2 and titre.boutons[2].button_pressed, "choisir un niveau le sélectionne et le sauvegarde")
 	titre.choisir_difficulte(0)
