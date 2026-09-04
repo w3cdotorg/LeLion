@@ -8,6 +8,7 @@ const NOMS_LANGUES := {"fr": "Français", "en": "English"}
 @onready var musique: HSlider = $Centre/Colonne/Grille/Musique
 @onready var effets: HSlider = $Centre/Colonne/Grille/Effets
 @onready var plein_ecran: Button = $Centre/Colonne/Grille/PleinEcran
+@onready var crt: Button = $Centre/Colonne/Grille/Crt
 @onready var langues: HBoxContainer = $Centre/Colonne/Grille/Langues
 @onready var bouton_fermer: Button = $Centre/Colonne/Fermer
 
@@ -20,6 +21,9 @@ func _ready() -> void:
 	Styles.appliquer_selection(plein_ecran)
 	plein_ecran.set_pressed_no_signal(Parametres.plein_ecran)
 	plein_ecran.text = "ON" if Parametres.plein_ecran else "OFF"
+	Styles.appliquer_selection(crt)
+	crt.set_pressed_no_signal(Parametres.crt)
+	crt.text = "ON" if Parametres.crt else "OFF"
 	for code in Parametres.LANGUES:
 		var bouton := Button.new()
 		bouton.toggle_mode = true
@@ -52,6 +56,11 @@ func _on_effets_value_changed(valeur: float) -> void:
 func _on_plein_ecran_toggled(actif: bool) -> void:
 	plein_ecran.text = "ON" if actif else "OFF"
 	Parametres.definir_plein_ecran(actif)
+
+
+func _on_crt_toggled(actif: bool) -> void:
+	crt.text = "ON" if actif else "OFF"
+	Parametres.definir_crt(actif)
 
 
 func _choisir_langue(code: String) -> void:

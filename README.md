@@ -36,8 +36,9 @@ seconds.
 | Pause (Resume / Settings / Back to menu) | Esc, P | Start | II button, top right |
 
 Touch controls only appear on devices with a touch screen. The **Settings** screen (title
-screen or pause menu) has music and sound-effect volumes, fullscreen, and the language
-(French or English; the default follows your system). Difficulty, last level, settings and best
+screen or pause menu) has music and sound-effect volumes, fullscreen, an optional CRT filter
+(scanlines, curvature, color bleed) and the language (French or English; the default follows
+your system). Difficulty, last level, settings and best
 times are all saved between sessions: on the web build they live in the browser's IndexedDB,
 so they survive closing the tab.
 

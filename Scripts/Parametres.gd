@@ -6,11 +6,14 @@ signal volumes_changes()
 signal langue_changee(langue: String)
 
 const LANGUES := ["fr", "en"]
+const SHADER_CRT := preload("res://Shaders/Crt.gdshader")
 
 var musique := 0.7
 var effets := 1.0
 var plein_ecran := false
 var langue := "en"
+var crt := false
+var couche_crt: CanvasLayer
 
 
 func _ready() -> void:
@@ -19,6 +22,8 @@ func _ready() -> void:
 	plein_ecran = bool(Scores.preference("plein_ecran", false))
 	langue = str(Scores.preference("langue", _langue_systeme()))
 	TranslationServer.set_locale(langue)
+	crt = bool(Scores.preference("crt", false))
+	_creer_couche_crt()
 	# Sur le Web, le plein écran exige un geste de l'utilisateur : on ne l'applique qu'au clic.
 	if plein_ecran and not OS.has_feature("web"):
 		_appliquer_plein_ecran()
@@ -53,6 +58,28 @@ func definir_langue(nouvelle: String) -> void:
 	Scores.definir_preference("langue", langue)
 	TranslationServer.set_locale(langue)
 	langue_changee.emit(langue)
+
+
+## Le filtre CRT est un ColorRect plein écran au-dessus de tout, qui relit l'écran rendu.
+func _creer_couche_crt() -> void:
+	couche_crt = CanvasLayer.new()
+	couche_crt.name = "FiltreCrt"
+	couche_crt.layer = 100
+	var rect := ColorRect.new()
+	rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var materiau := ShaderMaterial.new()
+	materiau.shader = SHADER_CRT
+	rect.material = materiau
+	couche_crt.add_child(rect)
+	add_child(couche_crt)
+	couche_crt.visible = crt
+
+
+func definir_crt(actif: bool) -> void:
+	crt = actif
+	Scores.definir_preference("crt", actif)
+	couche_crt.visible = actif
 
 
 func _appliquer_plein_ecran() -> void:

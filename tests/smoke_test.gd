@@ -44,6 +44,11 @@ func _run() -> void:
 	_check(root.get_node("Audio")._musique.volume_db < -20.0 and params.en_db(0.0) <= -80.0, "le volume s'applique à la musique, 0 = silence")
 	params.definir_musique(0.7)
 	params.definir_effets(1.0)
+	_check(params.couche_crt != null and not params.couche_crt.visible, "le filtre CRT est présent et désactivé par défaut")
+	params.definir_crt(true)
+	_check(params.couche_crt.visible and bool(scores.preference("crt", false)), "activer le filtre CRT l'affiche et le sauvegarde")
+	_check(params.couche_crt.get_child(0).material.shader != null, "la couche CRT porte le shader")
+	params.definir_crt(false)
 
 	# Écran titre : un bouton par niveau, lancer un niveau le sélectionne
 	var titre: Control = load("res://Scenes/Titre.tscn").instantiate()

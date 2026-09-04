@@ -76,6 +76,19 @@ theme_override_font_sizes/font_size = 26
 toggle_mode = true
 text = "OFF"
 
+[node name="LabelCrt" type="Label" parent="Centre/Colonne/Grille"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "FILTRE_CRT"
+
+[node name="Crt" type="Button" parent="Centre/Colonne/Grille"]
+custom_minimum_size = Vector2(120, 44)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_font_sizes/font_size = 26
+toggle_mode = true
+text = "OFF"
+
 [node name="LabelLangue" type="Label" parent="Centre/Colonne/Grille"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
@@ -95,4 +108,5 @@ text = "FERMER"
 [connection signal="value_changed" from="Centre/Colonne/Grille/Musique" to="." method="_on_musique_value_changed"]
 [connection signal="value_changed" from="Centre/Colonne/Grille/Effets" to="." method="_on_effets_value_changed"]
 [connection signal="toggled" from="Centre/Colonne/Grille/PleinEcran" to="." method="_on_plein_ecran_toggled"]
+[connection signal="toggled" from="Centre/Colonne/Grille/Crt" to="." method="_on_crt_toggled"]
 [connection signal="pressed" from="Centre/Colonne/Fermer" to="." method="fermer"]
