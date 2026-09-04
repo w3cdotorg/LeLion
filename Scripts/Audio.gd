@@ -8,7 +8,9 @@ const SONS := {
 	"boss": preload("res://Assets/Sons/boss.wav"),
 }
 var _vomi_stream: AudioStreamWAV = preload("res://Assets/Sons/vomi.wav")
+var _musique_stream: AudioStreamWAV = preload("res://Assets/Sons/musique.wav")
 var _vomi: AudioStreamPlayer
+var _musique: AudioStreamPlayer
 
 
 func _ready() -> void:
@@ -19,6 +21,14 @@ func _ready() -> void:
 	_vomi.stream = _vomi_stream
 	_vomi.volume_db = -8.0
 	add_child(_vomi)
+
+	_musique_stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	_musique_stream.loop_end = int(_musique_stream.get_length() * _musique_stream.mix_rate)
+	_musique = AudioStreamPlayer.new()
+	_musique.stream = _musique_stream
+	_musique.volume_db = -12.0
+	add_child(_musique)
+	_musique.play()
 
 	GameState.couleur_debloquee.connect(func(_c: Color) -> void: jouer("pickup"))
 	GameState.partie_terminee.connect(_on_partie_terminee)

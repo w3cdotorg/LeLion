@@ -61,6 +61,7 @@ func _run() -> void:
 	var spawner: Node = main.get_node("Spawner")
 	_check(GS.partie_en_cours, "partie en cours après Main._ready")
 	_check(root.get_node_or_null("Audio") != null, "autoload Audio présent")
+	_check(root.get_node("Audio")._musique.playing, "la musique tourne en boucle")
 
 	# Pause via l'action "pause"
 	var ev := InputEventAction.new()
@@ -128,6 +129,9 @@ func _run() -> void:
 	await _frames(3)
 	_check(GS.partie_en_cours and GS.vies == 2, "un coup coûte une vie, la partie continue (%d vies)" % GS.vies)
 	_check(GS.est_invulnerable(), "le lion est invulnérable après un coup")
+	_check(lion._recul.length() > 0.0, "le lion est repoussé par le coup (%.0f px/s)" % lion._recul.length())
+	_check(hud.flash.color.a > 0.0, "l'écran flashe en rouge")
+	_check(main._tremblement_restant > 0.0, "la caméra tremble")
 	_check(hud._coeurs[2].modulate == hud.COULEUR_COEUR_PERDU, "le HUD grise le cœur perdu")
 	coccinelle.queue_free()
 	var soucoupe2: Node = spawner.spawn_soucoupe(lion.global_position.y + 66)
@@ -173,9 +177,15 @@ func _run() -> void:
 			ville.peindre(Vector2(x, haut + y), 45, GS.couleurs_debloquees)
 	await _frames(3)
 	_check(GS.progression >= GS.SEUIL_VICTOIRE, "progression >= seuil après avoir tout peint (%.2f)" % GS.progression)
+	_check(ville.coulures.size() > 0 or ville.CHANCE_COULURE == 0.0, "des coulures de peinture sont en cours (%d)" % ville.coulures.size())
 	_check(not GS.partie_en_cours and paused, "la partie se termine en victoire")
 	overlay = main.get_node_or_null("GameOver")
 	_check(overlay != null and overlay.titre.text == "VICTOIRE !", "l'overlay affiche VICTOIRE")
+	var nb_confettis := 0
+	for enfant in overlay.get_children():
+		if enfant is GPUParticles2D:
+			nb_confettis += 1
+	_check(nb_confettis == 3, "la victoire lance des confettis (%d émetteurs)" % nb_confettis)
 	_check(overlay != null and "Nouveau record" in overlay.sous_titre.text, "la victoire enregistre un record")
 	_check(overlay != null and overlay.bouton_suivant.visible, "le bouton Niveau suivant est proposé")
 	_check(scores.meilleur_temps("metropole/facile") >= 0.0, "le record est persisté par niveau et difficulté")

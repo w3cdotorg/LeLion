@@ -7,7 +7,7 @@ signal progression_changee(ratio: float)
 signal partie_terminee(victoire: bool)
 signal bonus_change(actif: bool)
 signal vies_changees(vies: int)
-signal lion_touche()
+signal lion_touche(origine: Vector2)
 
 const COULEURS_ARC_EN_CIEL: Array[Color] = [
 	Color.RED, Color.ORANGE, Color.YELLOW, Color.GREEN,
@@ -77,7 +77,8 @@ func est_invulnerable() -> bool:
 
 
 ## Un ennemi touche le lion : perd une vie, ou termine la partie s'il n'en reste plus.
-func toucher_lion() -> void:
+## `origine` = position de l'ennemi, pour le recul (Vector2.INF si inconnue).
+func toucher_lion(origine: Vector2 = Vector2.INF) -> void:
 	if not partie_en_cours or est_invulnerable():
 		return
 	vies -= 1
@@ -86,7 +87,7 @@ func toucher_lion() -> void:
 		terminer_partie(false)
 		return
 	invulnerable_restant = DUREE_INVULNERABILITE
-	lion_touche.emit()
+	lion_touche.emit(origine)
 
 
 func gagner_vie() -> bool:

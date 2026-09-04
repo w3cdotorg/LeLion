@@ -7,6 +7,7 @@ const TEXTURE_COEUR := preload("res://Assets/Sprites/coeur.png")
 const COULEUR_COEUR := Color(1.0, 0.3, 0.35)
 const COULEUR_COEUR_PERDU := Color(1, 1, 1, 0.15)
 
+@onready var flash: ColorRect = $Flash
 @onready var vies: HBoxContainer = $Marge/Ligne/Vies
 @onready var progression: ProgressBar = $Marge/Ligne/Progression
 @onready var pourcent: Label = $Marge/Ligne/Progression/Pourcent
@@ -38,6 +39,7 @@ func _ready() -> void:
 	_on_vies_changees(GameState.vies)
 
 	GameState.vies_changees.connect(_on_vies_changees)
+	GameState.lion_touche.connect(_on_lion_touche)
 	GameState.progression_changee.connect(_on_progression_changee)
 	GameState.couleur_debloquee.connect(_on_couleur_debloquee)
 	_on_progression_changee(GameState.progression)
@@ -51,6 +53,11 @@ func _process(_delta: float) -> void:
 	if etiquette_bonus.visible:
 		etiquette_bonus.text = "★ GERBE XXL %d s" % ceili(GameState.bonus_restant)
 
+
+
+func _on_lion_touche(_origine: Vector2) -> void:
+	flash.color.a = 0.45
+	create_tween().tween_property(flash, "color:a", 0.0, 0.4)
 
 
 ## Affiche autant de cœurs que la difficulté en accorde ; les perdus restent en grisé.

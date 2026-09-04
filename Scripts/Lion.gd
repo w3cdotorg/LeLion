@@ -16,6 +16,9 @@ const BOUCHE_X_DROITE := 89.0
 const BOUCHE_X_GAUCHE := 47.0
 
 @export var speed: float = 350.0
+@export var acceleration: float = 2400.0
+@export var force_recul: float = 700.0
+@export var inclinaison_max: float = 0.14  # radians
 
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var anim: AnimationPlayer = $AnimationPlayer
@@ -26,6 +29,9 @@ const BOUCHE_X_GAUCHE := 47.0
 
 var est_en_train_de_vomir := false
 var direction_du_lion: int = 1  # 1 = droite, -1 = gauche
+var _vitesse := Vector2.ZERO
+var _recul := Vector2.ZERO
+var _temps := 0.0
 
 
 func _ready() -> void:
@@ -36,7 +42,8 @@ func _ready() -> void:
 	mettre_a_jour_degrade_vomi()
 
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
+	_temps += delta
 	var input_vector := Input.get_vector("deplacer_gauche", "deplacer_droite", "deplacer_haut", "deplacer_bas")
 
 	if input_vector.x != 0:
@@ -45,8 +52,11 @@ func _physics_process(_delta: float) -> void:
 			direction_du_lion = nouvelle_direction
 			_appliquer_direction()
 
-	velocity = input_vector * speed
+	_vitesse = _vitesse.move_toward(input_vector * speed, acceleration * delta)
+	_recul = _recul.move_toward(Vector2.ZERO, acceleration * 1.5 * delta)
+	velocity = _vitesse + _recul
 	move_and_slide()
+	_animer_deplacement(delta)
 
 	var screen_rect := get_viewport_rect()
 	var sprite_size := sprite.texture.get_size()
@@ -66,9 +76,24 @@ func _on_couleur_debloquee(_couleur: Color) -> void:
 	mettre_a_jour_degrade_vomi()
 
 
-## Clignote pendant l'invulnérabilité qui suit un coup.
-func _on_lion_touche() -> void:
+## Penche le lion dans le sens de la course et le fait trottiner.
+func _animer_deplacement(delta: float) -> void:
+	var cible: float = (_vitesse.x / speed) * inclinaison_max * signf(sprite.scale.x)
+	sprite.rotation = lerp(sprite.rotation, cible, min(1.0, 10.0 * delta))
+	var en_mouvement := _vitesse.length() > speed * 0.2
+	var bob := sin(_temps * 14.0) * 3.0 if en_mouvement else 0.0
+	sprite.position.y = lerp(sprite.position.y, 67.0 + bob, min(1.0, 12.0 * delta))
+
+
+## Recul et clignotement pendant l'invulnérabilité qui suit un coup.
+func _on_lion_touche(origine: Vector2) -> void:
 	Audio.jouer("mort")
+	var direction_recul := Vector2(-direction_du_lion, 0.0)
+	if origine.is_finite():
+		direction_recul = (global_position + Vector2(68, 66) - origine).normalized()
+		if direction_recul.length() < 0.1:
+			direction_recul = Vector2(-direction_du_lion, 0.0)
+	_recul = direction_recul * force_recul
 	var tween := create_tween()
 	var nb_clignotements := int(GameState.DUREE_INVULNERABILITE / 0.15)
 	for i in range(nb_clignotements):

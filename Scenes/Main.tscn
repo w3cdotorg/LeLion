@@ -31,6 +31,9 @@ texture = SubResource("GradientTexture2D_ciel")
 [node name="Lion" parent="." instance=ExtResource("3_lion")]
 position = Vector2(200, 200)
 
+[node name="Camera" type="Camera2D" parent="."]
+position = Vector2(1000, 324)
+
 [node name="Spawner" type="Node" parent="."]
 script = ExtResource("4_spawner")
 

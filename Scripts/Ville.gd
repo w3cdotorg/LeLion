@@ -6,6 +6,9 @@ extends Node2D
 const TAILLE_CELLULE := 8
 const NB_TAMPONS := 4
 const DENSITE_TAMPON := 0.5
+const CHANCE_COULURE := 0.3
+const COULURES_MAX := 40
+const VITESSE_COULURE := 70.0  # px/s
 
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var zone_shape: CollisionShape2D = $PeintureZone/CollisionShape2D
@@ -21,6 +24,7 @@ var _cellules_peignables: PackedByteArray
 var _cellules_peintes: PackedByteArray
 
 var _dirty := false
+var coulures: Array[Dictionary] = []
 var _tampons: Array[Image] = []
 var _tampons_rayon := -1
 var _tampons_nb_couleurs := -1
@@ -36,6 +40,7 @@ func charger_skyline(nouvelle: Texture2D) -> void:
 	tex_size = Vector2i(nouvelle.get_width(), nouvelle.get_height())
 	cellules_peignables = 0
 	cellules_peintes = 0
+	coulures.clear()
 	_tampons_rayon = -1
 	_calculer_cellules_peignables()
 
@@ -50,7 +55,8 @@ func charger_skyline(nouvelle: Texture2D) -> void:
 	zone_shape.position = Vector2.ZERO
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	_avancer_coulures(delta)
 	if _dirty:
 		_dirty = false
 		texture.update(image)
@@ -100,6 +106,33 @@ func peindre(position_globale: Vector2, rayon: int, couleurs: Array[Color]) -> v
 	var taille := tampon.get_width()
 	image.blit_rect_mask(tampon, tampon, Rect2i(0, 0, taille, taille), Vector2i(px - rayon, py - rayon))
 	_marquer_cellules(px, py, rayon)
+	if coulures.size() < COULURES_MAX and randf() < CHANCE_COULURE:
+		var c := couleurs[randi() % couleurs.size()]
+		c.a = 1.0
+		coulures.append({
+			"x": px + randi_range(-rayon, rayon), "y": float(py + randi_range(0, rayon)),
+			"fin": float(py + rayon + randi_range(14, 44)), "couleur": c,
+		})
+	_dirty = true
+
+
+## Les coulures descendent d'un trait de 2 px, une ligne à la fois.
+func _avancer_coulures(delta: float) -> void:
+	if coulures.is_empty():
+		return
+	var restantes: Array[Dictionary] = []
+	for c in coulures:
+		var y_avant := int(c.y)
+		c.y = min(c.y + VITESSE_COULURE * delta, c.fin)
+		for y in range(y_avant, int(c.y) + 1):
+			if y < 0 or y >= tex_size.y:
+				continue
+			for x in [c.x, c.x + 1]:
+				if x >= 0 and x < tex_size.x:
+					image.set_pixel(x, y, c.couleur)
+		if c.y < c.fin:
+			restantes.append(c)
+	coulures = restantes
 	_dirty = true
 
 
