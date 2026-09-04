@@ -36,6 +36,10 @@ func _run() -> void:
 	root.add_child(titre)
 	await _frames(1)
 	_check(titre.boutons.size() == GS.NIVEAUX.size(), "l'écran titre a un bouton par niveau (%d)" % titre.boutons.size())
+	_check(titre.boutons_difficulte.size() == GS.DIFFICULTES.size(), "l'écran titre a un bouton par difficulté (%d)" % titre.boutons_difficulte.size())
+	titre.choisir_difficulte(2)
+	_check(GS.difficulte_courante == 2 and titre.boutons_difficulte[2].button_pressed, "choisir une difficulté la sélectionne")
+	titre.choisir_difficulte(0)
 	_check("pas encore peint" in titre.boutons[1].text, "un niveau jamais gagné affiche « pas encore peint »")
 	GS.niveau_courant = 1
 	titre.free()
@@ -111,11 +115,34 @@ func _run() -> void:
 	await _frames(3)
 	_check(not lion.est_en_train_de_vomir, "le lion arrête de vomir quand l'action est relâchée")
 
-	# Défaite : coccinelle sur le lion
+	# Mode Facile : un coup enlève une vie et rend invulnérable un moment
+	_check(GS.vies == 3 and hud._coeurs[2].visible, "mode Facile : 3 vies affichées")
 	var coccinelle: Node = spawner.spawn_coccinelle(lion.global_position.y + 66)
 	coccinelle.position.x = lion.global_position.x + 68
 	await _frames(3)
-	_check(not GS.partie_en_cours, "la partie se termine au contact d'un ennemi")
+	_check(GS.partie_en_cours and GS.vies == 2, "un coup coûte une vie, la partie continue (%d vies)" % GS.vies)
+	_check(GS.est_invulnerable(), "le lion est invulnérable après un coup")
+	_check(hud._coeurs[2].modulate == hud.COULEUR_COEUR_PERDU, "le HUD grise le cœur perdu")
+	coccinelle.queue_free()
+	var soucoupe2: Node = spawner.spawn_soucoupe(lion.global_position.y + 66)
+	soucoupe2.position.x = lion.global_position.x + 68
+	await _frames(3)
+	_check(GS.vies == 2, "un coup pendant l'invulnérabilité ne compte pas")
+	soucoupe2.queue_free()
+	GS.invulnerable_restant = 0.0
+
+	# Cœur : rend une vie, jamais au-delà du maximum
+	var coeur: Node = spawner.spawn_coeur(lion.global_position + Vector2(68, 66))
+	await _frames(3)
+	_check(not is_instance_valid(coeur) and GS.vies == 3, "un cœur ramassé rend une vie (%d)" % GS.vies)
+	_check(not GS.gagner_vie(), "impossible de dépasser le maximum de vies")
+
+	# Défaite : trois coups
+	GS.vies = 1
+	coccinelle = spawner.spawn_coccinelle(lion.global_position.y + 66)
+	coccinelle.position.x = lion.global_position.x + 68
+	await _frames(3)
+	_check(not GS.partie_en_cours, "la partie se termine quand la dernière vie est perdue")
 	_check(paused, "l'arbre est en pause après la défaite")
 	var overlay: Node = main.get_node_or_null("GameOver")
 	_check(overlay != null, "l'overlay GameOver est affiché")
@@ -145,8 +172,29 @@ func _run() -> void:
 	_check(overlay != null and overlay.titre.text == "VICTOIRE !", "l'overlay affiche VICTOIRE")
 	_check(overlay != null and "Nouveau record" in overlay.sous_titre.text, "la victoire enregistre un record")
 	_check(overlay != null and overlay.bouton_suivant.visible, "le bouton Niveau suivant est proposé")
-	_check(scores.meilleur_temps("metropole") >= 0.0, "le record du niveau est persisté")
+	_check(scores.meilleur_temps("metropole/facile") >= 0.0, "le record est persisté par niveau et difficulté")
 	scores.effacer()
+
+	# Hardcore : un seul coup
+	paused = false
+	main.queue_free()
+	await _frames(2)
+	GS.niveau_courant = 0
+	GS.difficulte_courante = 2
+	main = load("res://Scenes/Main.tscn").instantiate()
+	root.add_child(main)
+	current_scene = main
+	await _frames(2)
+	lion = main.get_node("Lion")
+	spawner = main.get_node("Spawner")
+	hud = main.get_node("HUD")
+	_check(GS.vies == 1 and not hud._coeurs[1].visible, "mode Hardcore : un seul cœur affiché")
+	_check(spawner._timer_coeur == null, "mode Hardcore : pas de cœurs à ramasser")
+	coccinelle = spawner.spawn_coccinelle(lion.global_position.y + 66)
+	coccinelle.position.x = lion.global_position.x + 68
+	await _frames(3)
+	_check(not GS.partie_en_cours, "mode Hardcore : un coup et c'est fini")
+	GS.difficulte_courante = 0
 
 	print("== %d échec(s) ==" % _echecs)
 	paused = false

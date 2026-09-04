@@ -14,8 +14,11 @@ en survolant la ville. La partie est gagnée quand 85 % de la skyline est peinte
 Une soucoupe ou une coccinelle qui te touche, et c'est terminé. Les ennemis arrivent de
 plus en plus vite à mesure que la ville se colore.
 
-Trois niveaux (Skyline, Métropole, Village) se choisissent depuis l'écran titre, qui affiche
-ton meilleur temps sur chacun. Une étoile arc-en-ciel apparaît de temps en temps : ramasse-la
+Trois difficultés se choisissent sur l'écran titre : **Facile** (3 cœurs, des cœurs à
+ramasser réapparaissent), **Moyen** (3 cœurs, sans rab) et **Hardcore** (un seul coup et
+c'est fini). Après un coup, le lion clignote et reste invulnérable une seconde et demie.
+Puis trois niveaux (Skyline, Métropole, Village), avec ton meilleur temps pour la difficulté
+choisie. Une étoile arc-en-ciel apparaît de temps en temps : ramasse-la
 pour doubler la largeur de ta gerbe pendant huit secondes.
 
 | Action | Clavier | Manette |
@@ -36,12 +39,12 @@ godot .
 ## Structure
 
 ```
-Scenes/     Titre, Main (partie), Lion, Ville, HUD, GameOver, ColorPickup, BonusPickup, Soucoupe, Coccinelle
-Scripts/    un script par scène + autoloads GameState (partie, niveaux), Scores (records), Audio (sons)
+Scenes/     Titre, Main (partie), Lion, Ville, HUD, GameOver, ColorPickup, BonusPickup, CoeurPickup, Soucoupe, Coccinelle
+Scripts/    un script par scène + autoloads GameState (partie, vies, niveaux, difficultés), Scores (records), Audio (sons)
 Shaders/    Ville.gdshader : applique le masque de peinture sur la skyline
 Assets/     Sprites (utilisés), Sons (générés), src (matériel de référence, ignoré par Godot)
 tests/      smoke_test.gd (headless) et screenshots.gd (captures pilotées)
-tools/      generer_sons.py (effets sonores) et generer_skylines.py (skylines, étoile)
+tools/      generer_sons.py (effets sonores) et generer_skylines.py (skylines, étoile, cœur)
 ```
 
 La peinture est un masque RGBA de la taille de la skyline, tamponné par blit natif là où

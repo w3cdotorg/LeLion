@@ -54,6 +54,11 @@ theme_override_font_sizes/font_size = 30
 text = "Colorie la ville en vomissant un arc-en-ciel. Évite la soucoupe et la coccinelle."
 horizontal_alignment = 1
 
+[node name="Difficultes" type="HBoxContainer" parent="Centre/Colonne"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
 [node name="Niveaux" type="HBoxContainer" parent="Centre/Colonne"]
 layout_mode = 2
 theme_override_constants/separation = 24

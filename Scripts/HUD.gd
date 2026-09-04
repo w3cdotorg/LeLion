@@ -3,7 +3,11 @@ extends CanvasLayer
 
 const TAILLE_PASTILLE := Vector2(36, 36)
 const COULEUR_VERROUILLEE := Color(1, 1, 1, 0.15)
+const TEXTURE_COEUR := preload("res://Assets/Sprites/coeur.png")
+const COULEUR_COEUR := Color(1.0, 0.3, 0.35)
+const COULEUR_COEUR_PERDU := Color(1, 1, 1, 0.15)
 
+@onready var vies: HBoxContainer = $Marge/Ligne/Vies
 @onready var progression: ProgressBar = $Marge/Ligne/Progression
 @onready var pourcent: Label = $Marge/Ligne/Progression/Pourcent
 @onready var couleurs: HBoxContainer = $Marge/Ligne/Couleurs
@@ -13,6 +17,7 @@ const COULEUR_VERROUILLEE := Color(1, 1, 1, 0.15)
 @onready var etiquette_bonus: Label = $Marge/Ligne/Bonus
 
 var _pastilles: Array[ColorRect] = []
+var _coeurs: Array[TextureRect] = []
 
 
 func _ready() -> void:
@@ -23,6 +28,17 @@ func _ready() -> void:
 		couleurs.add_child(pastille)
 		_pastilles.append(pastille)
 
+	for i in range(GameState.VIES_MAX):
+		var coeur := TextureRect.new()
+		coeur.texture = TEXTURE_COEUR
+		coeur.custom_minimum_size = TAILLE_PASTILLE
+		coeur.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		coeur.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		vies.add_child(coeur)
+		_coeurs.append(coeur)
+	_on_vies_changees(GameState.vies)
+
+	GameState.vies_changees.connect(_on_vies_changees)
 	GameState.progression_changee.connect(_on_progression_changee)
 	GameState.couleur_debloquee.connect(_on_couleur_debloquee)
 	_on_progression_changee(GameState.progression)
@@ -47,6 +63,14 @@ func basculer_pause() -> void:
 	var en_pause := not get_tree().paused
 	get_tree().paused = en_pause
 	etiquette_pause.visible = en_pause
+
+
+## Affiche autant de cœurs que la difficulté en accorde ; les perdus restent en grisé.
+func _on_vies_changees(nb: int) -> void:
+	var max_difficulte: int = GameState.difficulte().vies
+	for i in range(_coeurs.size()):
+		_coeurs[i].visible = i < max_difficulte
+		_coeurs[i].modulate = COULEUR_COEUR if i < nb else COULEUR_COEUR_PERDU
 
 
 func _on_progression_changee(ratio: float) -> void:

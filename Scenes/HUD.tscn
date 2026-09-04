@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://dlelionhud000"]
+[gd_scene load_steps=3 format=3 uid="uid://dlelionhud000"]
 
 [ext_resource type="Script" path="res://Scripts/HUD.gd" id="1_hud"]
+[ext_resource type="Texture2D" path="res://Assets/Sprites/coeur.png" id="2_coeur"]
 
 [node name="HUD" type="CanvasLayer"]
 process_mode = 3
@@ -18,6 +19,11 @@ theme_override_constants/margin_right = 24
 [node name="Ligne" type="HBoxContainer" parent="Marge"]
 layout_mode = 2
 theme_override_constants/separation = 32
+
+[node name="Vies" type="HBoxContainer" parent="Marge/Ligne"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 4
 
 [node name="Progression" type="ProgressBar" parent="Marge/Ligne"]
 custom_minimum_size = Vector2(500, 36)

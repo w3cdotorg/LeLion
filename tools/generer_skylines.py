@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Génère des silhouettes de skyline (PNG RGBA, bâtiments noirs sur fond transparent)
-dans Assets/Sprites, ainsi que le sprite du bonus Gerbe XXL.
+dans Assets/Sprites, ainsi que les sprites du bonus Gerbe XXL (étoile) et de vie (cœur).
 
 Usage : python3 tools/generer_skylines.py
 """
@@ -135,7 +135,21 @@ def etoile(taille=64):
     t.png(DOSSIER / "etoile.png", couleur=(255, 255, 255))
 
 
+def coeur(taille=64):
+    """Cœur blanc (à teinter par modulate) : deux disques et un triangle."""
+    t = Toile(taille, taille)
+    for y in range(taille):
+        for x in range(taille):
+            # équation implicite du cœur, repère centré, y vers le haut
+            px = (x - taille / 2 + 0.5) / (taille * 0.42)
+            py = -(y - taille / 2 + 0.5) / (taille * 0.42) + 0.15
+            if (px * px + py * py - 1) ** 3 - px * px * py ** 3 <= 0:
+                t.a[y][x] = 255
+    t.png(DOSSIER / "coeur.png", couleur=(255, 255, 255))
+
+
 if __name__ == "__main__":
     metropole()
     village()
     etoile()
+    coeur()

@@ -31,6 +31,7 @@ var direction_du_lion: int = 1  # 1 = droite, -1 = gauche
 func _ready() -> void:
 	GameState.couleur_debloquee.connect(_on_couleur_debloquee)
 	GameState.bonus_change.connect(_on_bonus_change)
+	GameState.lion_touche.connect(_on_lion_touche)
 	_appliquer_direction()
 	mettre_a_jour_degrade_vomi()
 
@@ -63,6 +64,16 @@ func _process(_delta: float) -> void:
 
 func _on_couleur_debloquee(_couleur: Color) -> void:
 	mettre_a_jour_degrade_vomi()
+
+
+## Clignote pendant l'invulnérabilité qui suit un coup.
+func _on_lion_touche() -> void:
+	Audio.jouer("mort")
+	var tween := create_tween()
+	var nb_clignotements := int(GameState.DUREE_INVULNERABILITE / 0.15)
+	for i in range(nb_clignotements):
+		tween.tween_property(sprite, "modulate:a", 0.25, 0.075)
+		tween.tween_property(sprite, "modulate:a", 1.0, 0.075)
 
 
 func _on_bonus_change(_actif: bool) -> void:

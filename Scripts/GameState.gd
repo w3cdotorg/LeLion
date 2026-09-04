@@ -6,12 +6,24 @@ signal couleur_debloquee(couleur: Color)
 signal progression_changee(ratio: float)
 signal partie_terminee(victoire: bool)
 signal bonus_change(actif: bool)
+signal vies_changees(vies: int)
+signal lion_touche()
 
 const COULEURS_ARC_EN_CIEL: Array[Color] = [
 	Color.RED, Color.ORANGE, Color.YELLOW, Color.GREEN,
 	Color.CYAN, Color.BLUE, Color.VIOLET,
 ]
 const SEUIL_VICTOIRE := 0.85
+const VIES_MAX := 3
+const DUREE_INVULNERABILITE := 1.5
+const DIFFICULTES: Array[Dictionary] = [
+	{"id": "facile", "nom": "Facile", "vies": 3, "pickups_coeur": true,
+		"description": "3 cœurs, des cœurs à ramasser"},
+	{"id": "moyen", "nom": "Moyen", "vies": 3, "pickups_coeur": false,
+		"description": "3 cœurs, sans rab"},
+	{"id": "hardcore", "nom": "Hardcore", "vies": 1, "pickups_coeur": false,
+		"description": "un seul coup et c'est fini"},
+]
 const NIVEAUX: Array[Dictionary] = [
 	{"id": "skyline", "nom": "Skyline", "texture": "res://Assets/Sprites/skyline_2000px.png"},
 	{"id": "metropole", "nom": "Métropole", "texture": "res://Assets/Sprites/skyline_metropole.png"},
@@ -23,6 +35,9 @@ var progression := 0.0
 var temps_ecoule := 0.0
 var partie_en_cours := false
 var niveau_courant := 0
+var difficulte_courante := 0
+var vies := 3
+var invulnerable_restant := 0.0
 var bonus_restant := 0.0
 
 
@@ -30,6 +45,8 @@ func _process(delta: float) -> void:
 	if not partie_en_cours:
 		return
 	temps_ecoule += delta
+	if invulnerable_restant > 0.0:
+		invulnerable_restant = max(0.0, invulnerable_restant - delta)
 	if bonus_restant > 0.0:
 		bonus_restant -= delta
 		if bonus_restant <= 0.0:
@@ -42,7 +59,42 @@ func nouvelle_partie() -> void:
 	progression = 0.0
 	temps_ecoule = 0.0
 	bonus_restant = 0.0
+	invulnerable_restant = 0.0
+	vies = difficulte().vies
 	partie_en_cours = true
+
+
+func difficulte() -> Dictionary:
+	return DIFFICULTES[difficulte_courante]
+
+
+func cle_score() -> String:
+	return "%s/%s" % [niveau().id, difficulte().id]
+
+
+func est_invulnerable() -> bool:
+	return invulnerable_restant > 0.0
+
+
+## Un ennemi touche le lion : perd une vie, ou termine la partie s'il n'en reste plus.
+func toucher_lion() -> void:
+	if not partie_en_cours or est_invulnerable():
+		return
+	vies -= 1
+	vies_changees.emit(vies)
+	if vies <= 0:
+		terminer_partie(false)
+		return
+	invulnerable_restant = DUREE_INVULNERABILITE
+	lion_touche.emit()
+
+
+func gagner_vie() -> bool:
+	if vies >= VIES_MAX:
+		return false
+	vies += 1
+	vies_changees.emit(vies)
+	return true
 
 
 func niveau() -> Dictionary:

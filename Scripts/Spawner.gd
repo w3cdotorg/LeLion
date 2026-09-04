@@ -6,6 +6,7 @@ extends Node
 @export var soucoupe_scene: PackedScene = preload("res://Scenes/Soucoupe.tscn")
 @export var coccinelle_scene: PackedScene = preload("res://Scenes/Coccinelle.tscn")
 @export var bonus_scene: PackedScene = preload("res://Scenes/BonusPickup.tscn")
+@export var coeur_scene: PackedScene = preload("res://Scenes/CoeurPickup.tscn")
 
 @export_group("Pickups")
 @export var delai_premier_pickup := 1.0
@@ -15,6 +16,8 @@ extends Node
 @export var delai_premier_bonus := 20.0
 @export var intervalle_bonus := Vector2(25.0, 35.0)  # min, max
 @export var couleurs_requises_bonus := 2
+@export var delai_premier_coeur := 12.0
+@export var intervalle_coeur := Vector2(18.0, 28.0)  # min, max
 
 @export_group("Ennemis")
 @export var zone_y_ennemis := Vector2(120, 480)
@@ -26,6 +29,7 @@ extends Node
 var _timer_soucoupe: Timer
 var _timer_coccinelle: Timer
 var _timer_bonus: Timer
+var _timer_coeur: Timer
 
 
 func _ready() -> void:
@@ -38,6 +42,9 @@ func _ready() -> void:
 	_timer_soucoupe.start(intervalle_soucoupe.x * 0.5)
 	_timer_coccinelle.start(intervalle_coccinelle.x * 0.8)
 	_timer_bonus.start(delai_premier_bonus)
+	if GameState.difficulte().pickups_coeur:
+		_timer_coeur = _creer_timer(_on_timer_coeur)
+		_timer_coeur.start(delai_premier_coeur)
 
 
 ## 0 au début, 1 quand la ville est presque peinte ou après `duree_montee_difficulte`.
@@ -67,6 +74,8 @@ func _on_partie_terminee(_victoire: bool) -> void:
 	_timer_soucoupe.stop()
 	_timer_coccinelle.stop()
 	_timer_bonus.stop()
+	if _timer_coeur != null:
+		_timer_coeur.stop()
 
 
 func _on_timer_soucoupe() -> void:
@@ -85,6 +94,21 @@ func _on_timer_bonus() -> void:
 		_timer_bonus.start(randf_range(intervalle_bonus.x, intervalle_bonus.y))
 	else:
 		_timer_bonus.start(5.0)
+
+
+func _on_timer_coeur() -> void:
+	if GameState.vies < GameState.VIES_MAX and get_tree().get_first_node_in_group("coeur_pickup") == null:
+		spawn_coeur(_position_pickup_aleatoire())
+		_timer_coeur.start(randf_range(intervalle_coeur.x, intervalle_coeur.y))
+	else:
+		_timer_coeur.start(5.0)
+
+
+func spawn_coeur(position_coeur: Vector2) -> Node:
+	var coeur := coeur_scene.instantiate()
+	coeur.global_position = position_coeur
+	get_parent().add_child(coeur)
+	return coeur
 
 
 func spawn_bonus(position_bonus: Vector2) -> Node:

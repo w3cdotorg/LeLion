@@ -16,7 +16,7 @@ func afficher(victoire: bool, progression: float, temps: float) -> void:
 	titre.add_theme_color_override("font_color", COULEUR_VICTOIRE if victoire else COULEUR_DEFAITE)
 	var pourcent := int(round(progression * 100))
 	if victoire:
-		var rang: int = Scores.enregistrer(GameState.niveau().id, temps)
+		var rang: int = Scores.enregistrer(GameState.cle_score(), temps)
 		sous_titre.text = "Ville peinte à %d %% en %s" % [pourcent, GameState.formater_temps(temps)]
 		if rang == 0:
 			sous_titre.text += "   ·   Nouveau record !"

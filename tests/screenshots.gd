@@ -64,7 +64,10 @@ func _run() -> void:
 	spawner.spawn_soucoupe(300)
 	spawner.spawn_coccinelle(250)
 	spawner.spawn_bonus(Vector2(1300, 220))
+	spawner.spawn_coeur(Vector2(1600, 300))
 	GS.activer_bonus(8.0)
+	GS.toucher_lion()
+	GS.invulnerable_restant = 0.0
 	await _attendre(0.75)
 	await _shot("03_vomi_gauche_7_couleurs_ennemis")
 	Input.action_release("vomir")
