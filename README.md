@@ -1,5 +1,7 @@
 # LeLion
 
+[Inspiration initiale Laetitia Perez](https://www.instagram.com/p/Dc3SacQDsyM/?igsi=M21jMzRiMmxqdTZl)
+
 Un lion doit colorier la ville en vomissant un arc-en-ciel, tout en évitant des ennemis.
 Un jeu absurde et délicieusement coloré, fait avec [Godot 4](https://godotengine.org).
 
