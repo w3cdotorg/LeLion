@@ -51,6 +51,10 @@ func _run() -> void:
 	_check(not is_instance_valid(pickup), "le pickup disparaît au contact")
 	_check(GS.couleurs_debloquees.size() == 1, "une couleur débloquée via pickup")
 	_check(lion.vomi_container.get_child_count() == 1, "un émetteur de particules par couleur")
+	var hud: Node = main.get_node("HUD")
+	_check(hud.indice.visible == false, "le HUD cache l'indice après la première couleur")
+	_check(hud._pastilles[0].color == GS.couleur(0) and hud._pastilles[1].color != GS.couleur(1),
+		"le HUD affiche la première pastille débloquée et la deuxième verrouillée")
 
 	# Vomir sur la ville : on place le lion au-dessus de la skyline
 	lion.global_position = Vector2(600, ville.position.y - 300)
@@ -59,6 +63,11 @@ func _run() -> void:
 	_check(lion.est_en_train_de_vomir, "le lion vomit tant que l'action est maintenue")
 	_check(ville.cellules_peintes > 0, "la ville a été peinte (%d cellules)" % ville.cellules_peintes)
 	_check(GS.progression > 0.0, "la progression est remontée dans GameState (%.4f)" % GS.progression)
+	_check(hud.progression.value > 0.0, "la barre de progression du HUD bouge")
+	_check(spawner.difficulte() >= 0.0 and spawner.difficulte() <= 1.0, "difficulté bornée (%.3f)" % spawner.difficulte())
+	var soucoupe: Node = spawner.spawn_soucoupe(20)
+	_check(soucoupe.speed >= spawner.vitesse_soucoupe.x, "la soucoupe reçoit sa vitesse du spawner (%.0f)" % soucoupe.speed)
+	soucoupe.queue_free()
 	Input.action_release("vomir")
 	await _frames(3)
 	_check(not lion.est_en_train_de_vomir, "le lion arrête de vomir quand l'action est relâchée")

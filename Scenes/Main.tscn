@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3 uid="uid://dlelionmain00"]
+[gd_scene load_steps=7 format=3 uid="uid://dlelionmain00"]
 
 [ext_resource type="Script" path="res://Scripts/Main.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://c8c7a634fe6ju" path="res://Scenes/Ville.tscn" id="2_ville"]
 [ext_resource type="PackedScene" uid="uid://dmayuumv4a1gh" path="res://Scenes/Lion.tscn" id="3_lion"]
 [ext_resource type="Script" path="res://Scripts/Spawner.gd" id="4_spawner"]
 [ext_resource type="PackedScene" uid="uid://33sfcdosvxjl" path="res://Scenes/GameOver.tscn" id="5_gameover"]
+[ext_resource type="PackedScene" uid="uid://dlelionhud000" path="res://Scenes/HUD.tscn" id="6_hud"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_main")
@@ -17,3 +18,5 @@ position = Vector2(200, 200)
 
 [node name="Spawner" type="Node" parent="."]
 script = ExtResource("4_spawner")
+
+[node name="HUD" parent="." instance=ExtResource("6_hud")]

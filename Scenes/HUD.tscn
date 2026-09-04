@@ -1,0 +1,68 @@
+[gd_scene load_steps=2 format=3 uid="uid://dlelionhud000"]
+
+[ext_resource type="Script" path="res://Scripts/HUD.gd" id="1_hud"]
+
+[node name="HUD" type="CanvasLayer"]
+layer = 5
+script = ExtResource("1_hud")
+
+[node name="Marge" type="MarginContainer" parent="."]
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 24
+
+[node name="Ligne" type="HBoxContainer" parent="Marge"]
+layout_mode = 2
+theme_override_constants/separation = 32
+
+[node name="Progression" type="ProgressBar" parent="Marge/Ligne"]
+custom_minimum_size = Vector2(500, 36)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 20
+max_value = 100.0
+step = 0.1
+show_percentage = false
+
+[node name="Pourcent" type="Label" parent="Marge/Ligne/Progression"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 20
+text = "0 %"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Couleurs" type="HBoxContainer" parent="Marge/Ligne"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 8
+
+[node name="Espace" type="Control" parent="Marge/Ligne"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Chrono" type="Label" parent="Marge/Ligne"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 28
+text = "0:00"
+
+[node name="Indice" type="Label" parent="."]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -500.0
+offset_top = 80.0
+offset_right = 500.0
+offset_bottom = 130.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 32
+text = "Attrape une pastille de couleur, puis maintiens Espace pour peindre la ville !"
+horizontal_alignment = 1
