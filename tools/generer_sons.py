@@ -100,9 +100,22 @@ def boss():
     ecrire("boss", out, gain=0.9)
 
 
+def pret():
+    """Deux bips « prêt » puis un « go » plus aigu."""
+    out = []
+    for f, d in [(660, 0.12), (660, 0.12), (990, 0.3)]:
+        for i in range(int(SR * d)):
+            t = i / SR
+            out.append((1 if math.sin(2 * math.pi * f * t) > 0 else -1) * 0.5 * env(t, d, r=0.06))
+        for _ in range(int(SR * 0.08)):
+            out.append(0.0)
+    ecrire("pret", out, gain=0.7)
+
+
 if __name__ == "__main__":
     pickup()
     vomi()
     mort()
     victoire()
     boss()
+    pret()

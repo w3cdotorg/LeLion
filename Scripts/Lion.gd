@@ -44,7 +44,7 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	_temps += delta
-	var input_vector := Input.get_vector("deplacer_gauche", "deplacer_droite", "deplacer_haut", "deplacer_bas")
+	var input_vector := Input.get_vector("deplacer_gauche", "deplacer_droite", "deplacer_haut", "deplacer_bas") if GameState.pret else Vector2.ZERO
 
 	if input_vector.x != 0:
 		var nouvelle_direction := 1 if input_vector.x > 0 else -1
@@ -65,7 +65,7 @@ func _physics_process(delta: float) -> void:
 
 
 func _process(_delta: float) -> void:
-	if Input.is_action_pressed("vomir"):
+	if Input.is_action_pressed("vomir") and GameState.pret:
 		if not est_en_train_de_vomir:
 			demarrer_vomi()
 	elif est_en_train_de_vomir:

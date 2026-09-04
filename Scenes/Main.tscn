@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://dlelionmain00"]
+[gd_scene load_steps=12 format=3 uid="uid://dlelionmain00"]
 
 [ext_resource type="Script" path="res://Scripts/Main.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://c8c7a634fe6ju" path="res://Scenes/Ville.tscn" id="2_ville"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://dlelionhud000" path="res://Scenes/HUD.tscn" id="6_hud"]
 [ext_resource type="PackedScene" uid="uid://dlelionpause0" path="res://Scenes/PauseMenu.tscn" id="7_pause"]
 [ext_resource type="PackedScene" uid="uid://dleliontactil" path="res://Scenes/ControlesTactiles.tscn" id="8_tactile"]
+[ext_resource type="PackedScene" uid="uid://dlelionintro0" path="res://Scenes/Intro.tscn" id="9_intro"]
 
 [sub_resource type="Gradient" id="Gradient_ciel"]
 offsets = PackedFloat32Array(0, 0.55, 1)
@@ -43,3 +44,5 @@ script = ExtResource("4_spawner")
 [node name="PauseMenu" parent="." instance=ExtResource("7_pause")]
 
 [node name="ControlesTactiles" parent="." instance=ExtResource("8_tactile")]
+
+[node name="Intro" parent="." instance=ExtResource("9_intro")]

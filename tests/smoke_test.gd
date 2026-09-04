@@ -122,6 +122,19 @@ func _run() -> void:
 	var lion: CharacterBody2D = main.get_node("Lion")
 	var spawner: Node = main.get_node("Spawner")
 	_check(GS.partie_en_cours, "partie en cours après Main._ready")
+
+	# Intro « Prêt ? Vomissez ! » : le jeu attend
+	_check(not GS.pret and main.get_node_or_null("Intro") != null, "l'intro s'affiche et le jeu n'est pas encore prêt")
+	var position_avant: Vector2 = lion.global_position
+	Input.action_press("deplacer_droite")
+	await _frames(5)
+	Input.action_release("deplacer_droite")
+	_check(lion.global_position == position_avant, "le lion ne bouge pas pendant l'intro")
+	_check(GS.temps_ecoule == 0.0, "le chrono ne tourne pas pendant l'intro")
+	main.get_node("Intro").queue_free()
+	GS.demarrer()
+	await _frames(1)
+	_check(GS.pret, "demarrer() rend le jeu prêt")
 	_check(root.get_node_or_null("Audio") != null, "autoload Audio présent")
 	_check(root.get_node("Audio")._musique.playing, "la musique tourne en boucle")
 
@@ -240,6 +253,13 @@ func _run() -> void:
 	_check(paused, "l'arbre est en pause après la défaite")
 	var overlay: Node = main.get_node_or_null("GameOver")
 	_check(overlay != null, "l'overlay GameOver est affiché")
+	_check(overlay != null and overlay.phase_continue and overlay.compte.text == "9" and overlay.titre.text == tr("CONTINUE"),
+		"la défaite commence par CONTINUE ? avec un compte à 9")
+	_check(overlay != null and not overlay.stats.visible and not overlay.boutons.visible, "le bilan attend la fin du compte")
+	overlay._decrementer()
+	_check(overlay != null and overlay.compte.text == "8", "le compte descend")
+	overlay._fin_continue()
+	_check(overlay != null and not overlay.phase_continue and overlay.stats.visible, "à zéro, le bilan apparaît")
 	_check(overlay != null and overlay.titre.text == tr("GAME_OVER"), "l'overlay affiche GAME OVER")
 	_check(overlay != null and overlay._lignes.size() == 4 and overlay._lignes[2].cible == GS.coups_recus and GS.coups_recus == 2,
 		"le bilan de défaite a 4 lignes et compte les coups reçus (%d)" % GS.coups_recus)
@@ -261,10 +281,15 @@ func _run() -> void:
 	root.add_child(main)
 	current_scene = main
 	await _frames(2)
+	main.get_node("Intro").queue_free()
+	GS.demarrer()
+	await _frames(1)
 	_check(Input.get_action_strength("deplacer_droite") == 0.0, "une nouvelle partie démarre avec les actions relâchées")
 	_check(GS.couleurs_debloquees.is_empty() and main.get_node("Lion").vomi_container.get_child_count() == 0
 		and main.get_node("HUD")._pastilles[0].color == main.get_node("HUD").COULEUR_VERROUILLEE,
 		"une nouvelle partie repart sans couleur : ni émetteur, ni pastille allumée")
+	_check(GS.vies == 3 and GS.coups_recus == 0 and main.get_node("HUD")._coeurs[2].modulate == main.get_node("HUD").COULEUR_COEUR,
+		"après une défaite, le niveau suivant repart avec tous ses cœurs affichés")
 	ville = main.get_node("Ville")
 	_check(ville.tex_size == Vector2i(2000, 320), "la ville a chargé la skyline du niveau Métropole (%s)" % ville.tex_size)
 	GS.debloquer_couleur(0)
@@ -307,6 +332,9 @@ func _run() -> void:
 	root.add_child(main)
 	current_scene = main
 	await _frames(2)
+	main.get_node("Intro").queue_free()
+	GS.demarrer()
+	await _frames(1)
 	lion = main.get_node("Lion")
 	var boss: Node = get_first_node_in_group("boss")
 	_check(boss != null, "le niveau Village fait apparaître le boss")
@@ -357,6 +385,9 @@ func _run() -> void:
 	root.add_child(main)
 	current_scene = main
 	await _frames(2)
+	main.get_node("Intro").queue_free()
+	GS.demarrer()
+	await _frames(1)
 	lion = main.get_node("Lion")
 	spawner = main.get_node("Spawner")
 	hud = main.get_node("HUD")

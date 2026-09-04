@@ -40,6 +40,8 @@ func _ready() -> void:
 	_appliquer_cote()
 	position = Vector2(_x_hors_ecran(), y_sol - _demi_hauteur)
 	GameState.partie_terminee.connect(func(_v: bool) -> void: _arreter())
+	if not GameState.pret:
+		await GameState.partie_prete
 	_changer_etat(Etat.REPOS)
 
 

@@ -40,6 +40,22 @@ theme_override_font_sizes/font_size = 40
 text = ""
 horizontal_alignment = 1
 
+[node name="Compte" type="Label" parent="Centre/Colonne"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 220
+text = "9"
+horizontal_alignment = 1
+
+[node name="AideContinue" type="Label" parent="Centre/Colonne"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.7)
+theme_override_font_sizes/font_size = 30
+text = "CONTINUE_AIDE"
+horizontal_alignment = 1
+
 [node name="Stats" type="GridContainer" parent="Centre/Colonne"]
 layout_mode = 2
 size_flags_horizontal = 4

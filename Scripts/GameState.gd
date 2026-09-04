@@ -7,6 +7,7 @@ signal progression_changee(ratio: float)
 signal partie_terminee(victoire: bool)
 signal bonus_change(actif: bool)
 signal vies_changees(vies: int)
+signal partie_prete()
 signal lion_touche(origine: Vector2)
 
 const COULEURS_ARC_EN_CIEL: Array[Color] = [
@@ -30,6 +31,7 @@ var couleurs_debloquees: Array[Color] = []
 var progression := 0.0
 var temps_ecoule := 0.0
 var partie_en_cours := false
+var pret := false  # false pendant l'intro « Prêt ? Vomissez ! »
 var niveau_courant := 0
 var difficulte_courante := 0
 var vies := 3
@@ -39,7 +41,7 @@ var bonus_restant := 0.0
 
 
 func _process(delta: float) -> void:
-	if not partie_en_cours:
+	if not partie_en_cours or not pret:
 		return
 	temps_ecoule += delta
 	if invulnerable_restant > 0.0:
@@ -59,11 +61,25 @@ func nouvelle_partie() -> void:
 	invulnerable_restant = 0.0
 	vies = difficulte().vies
 	coups_recus = 0
+	pret = false
 	partie_en_cours = true
+
+
+## Fin de l'intro : le jeu réagit aux commandes, les ennemis arrivent, le chrono tourne.
+func demarrer() -> void:
+	if pret:
+		return
+	pret = true
+	partie_prete.emit()
 
 
 func difficulte() -> Dictionary:
 	return DIFFICULTES[difficulte_courante]
+
+
+## Texte affiché par l'intro : nom du niveau.
+func titre_etape() -> String:
+	return tr(niveau().nom).to_upper()
 
 
 ## Part de la ville à peindre pour gagner, selon la difficulté.
@@ -82,7 +98,7 @@ func est_invulnerable() -> bool:
 ## Un ennemi touche le lion : perd une vie, ou termine la partie s'il n'en reste plus.
 ## `origine` = position de l'ennemi, pour le recul (Vector2.INF si inconnue).
 func toucher_lion(origine: Vector2 = Vector2.INF) -> void:
-	if not partie_en_cours or est_invulnerable():
+	if not partie_en_cours or not pret or est_invulnerable():
 		return
 	vies -= 1
 	coups_recus += 1

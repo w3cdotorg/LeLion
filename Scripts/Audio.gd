@@ -9,6 +9,7 @@ const SONS := {
 	"mort": preload("res://Assets/Sons/mort.wav"),
 	"victoire": preload("res://Assets/Sons/victoire.wav"),
 	"boss": preload("res://Assets/Sons/boss.wav"),
+	"pret": preload("res://Assets/Sons/pret.wav"),
 }
 var _vomi_stream: AudioStreamWAV = preload("res://Assets/Sons/vomi.wav")
 var _musique_stream: AudioStreamWAV = preload("res://Assets/Sons/musique.wav")

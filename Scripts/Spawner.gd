@@ -38,13 +38,15 @@ var _facteur_ennemis := 1.0
 func _ready() -> void:
 	GameState.couleur_debloquee.connect(_on_couleur_debloquee)
 	GameState.partie_terminee.connect(_on_partie_terminee)
+	if GameState.niveau().get("boss", false):
+		_facteur_ennemis = facteur_ennemis_avec_boss
+		spawn_boss()
+	if not GameState.pret:
+		await GameState.partie_prete
 	_programmer(delai_premier_pickup, _spawn_prochain_pickup)
 	_timer_soucoupe = _creer_timer(_on_timer_soucoupe)
 	_timer_coccinelle = _creer_timer(_on_timer_coccinelle)
 	_timer_bonus = _creer_timer(_on_timer_bonus)
-	if GameState.niveau().get("boss", false):
-		_facteur_ennemis = facteur_ennemis_avec_boss
-		spawn_boss()
 	_timer_soucoupe.start(intervalle_soucoupe.x * 0.5 * _facteur_ennemis)
 	_timer_coccinelle.start(intervalle_coccinelle.x * 0.8 * _facteur_ennemis)
 	_timer_bonus.start(delai_premier_bonus)

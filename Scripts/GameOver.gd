@@ -11,9 +11,12 @@ const SCENE_TITRE := "res://Scenes/Titre.tscn"
 const TEXTURE_CONFETTI := preload("res://Assets/Sprites/circle_white.png")
 const DELAI_LIGNE := 0.3
 const DUREE_COMPTEUR := 0.45
+const COMPTE_CONTINUE := 9
 
 @onready var titre: Label = $Centre/Colonne/Titre
 @onready var sous_titre: Label = $Centre/Colonne/SousTitre
+@onready var compte: Label = $Centre/Colonne/Compte
+@onready var aide_continue: Label = $Centre/Colonne/AideContinue
 @onready var stats: GridContainer = $Centre/Colonne/Stats
 @onready var boutons: HBoxContainer = $Centre/Colonne/Boutons
 @onready var bouton_suivant: Button = $Centre/Colonne/Boutons/Suivant
@@ -22,9 +25,73 @@ const DUREE_COMPTEUR := 0.45
 var _tween: Tween
 var _animation_finie := false
 var _lignes: Array[Dictionary] = []
+var phase_continue := false
+var _compte_restant := COMPTE_CONTINUE
+var _victoire := false
+var _progression := 0.0
+var _temps := 0.0
 
 
+## Défaite : d'abord « CONTINUE ? » avec compte à rebours, puis le bilan.
 func afficher(victoire: bool, progression: float, temps: float) -> void:
+	_victoire = victoire
+	_progression = progression
+	_temps = temps
+	if victoire:
+		_afficher_bilan()
+	else:
+		_demarrer_continue()
+
+
+func _demarrer_continue() -> void:
+	phase_continue = true
+	titre.text = tr("CONTINUE")
+	titre.add_theme_color_override("font_color", COULEUR_DEFAITE)
+	compte.visible = true
+	aide_continue.visible = true
+	stats.visible = false
+	boutons.visible = false
+	sous_titre.visible = false
+	_compte_restant = COMPTE_CONTINUE
+	_afficher_compte()
+	_tween = create_tween().set_loops(COMPTE_CONTINUE)
+	_tween.tween_interval(1.0)
+	_tween.tween_callback(_decrementer)
+
+
+func _afficher_compte() -> void:
+	compte.text = str(_compte_restant)
+	compte.pivot_offset = compte.size / 2.0
+	compte.scale = Vector2(1.3, 1.3)
+	create_tween().tween_property(compte, "scale", Vector2.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+func _decrementer() -> void:
+	_compte_restant -= 1
+	if _compte_restant <= 0:
+		_fin_continue()
+	else:
+		_afficher_compte()
+
+
+## Le compte est écoulé : on montre le bilan classique.
+func _fin_continue() -> void:
+	if not phase_continue:
+		return
+	phase_continue = false
+	if _tween != null and _tween.is_valid():
+		_tween.kill()
+	compte.visible = false
+	aide_continue.visible = false
+	stats.visible = true
+	boutons.visible = true
+	_afficher_bilan()
+
+
+func _afficher_bilan() -> void:
+	var victoire := _victoire
+	var progression := _progression
+	var temps := _temps
 	titre.text = tr("VICTOIRE") if victoire else tr("GAME_OVER")
 	titre.add_theme_color_override("font_color", COULEUR_VICTOIRE if victoire else COULEUR_DEFAITE)
 
@@ -133,9 +200,15 @@ func _terminer_animation() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if _animation_finie:
+	var valide: bool = event.is_action_pressed("vomir") or event.is_action_pressed("ui_accept") \
+		or (event is InputEventScreenTouch and event.pressed)
+	if not valide:
 		return
-	if event.is_action_pressed("vomir") or event.is_action_pressed("ui_accept") or event is InputEventScreenTouch:
+	if phase_continue:
+		Audio.jouer("pickup")
+		_relancer()
+		get_viewport().set_input_as_handled()
+	elif not _animation_finie:
 		_terminer_animation()
 		get_viewport().set_input_as_handled()
 
