@@ -34,6 +34,7 @@ var partie_en_cours := false
 var niveau_courant := 0
 var difficulte_courante := 0
 var vies := 3
+var coups_recus := 0
 var invulnerable_restant := 0.0
 var bonus_restant := 0.0
 
@@ -58,6 +59,7 @@ func nouvelle_partie() -> void:
 	bonus_restant = 0.0
 	invulnerable_restant = 0.0
 	vies = difficulte().vies
+	coups_recus = 0
 	partie_en_cours = true
 
 
@@ -79,6 +81,7 @@ func toucher_lion(origine: Vector2 = Vector2.INF) -> void:
 	if not partie_en_cours or est_invulnerable():
 		return
 	vies -= 1
+	coups_recus += 1
 	vies_changees.emit(vies)
 	if vies <= 0:
 		terminer_partie(false)

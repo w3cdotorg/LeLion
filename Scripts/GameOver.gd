@@ -1,33 +1,143 @@
 extends CanvasLayer
-## Overlay de fin de partie (victoire ou défaite) : record, niveau suivant, rejouer, menu.
+## Bilan de fin de partie : lignes animées (compteurs), comparaison au record, badge
+## « Nouveau record », puis Niveau suivant / Rejouer / Menu. Une touche saute l'animation.
 
 const COULEUR_VICTOIRE := Color(1.0, 0.85, 0.2)
 const COULEUR_DEFAITE := Color(1.0, 0.35, 0.35)
+const COULEUR_MIEUX := Color(0.45, 0.95, 0.5)
+const COULEUR_MOINS_BIEN := Color(1.0, 0.55, 0.45)
+const COULEUR_NOM := Color(1, 1, 1, 0.7)
 const SCENE_TITRE := "res://Scenes/Titre.tscn"
 const TEXTURE_CONFETTI := preload("res://Assets/Sprites/circle_white.png")
+const DELAI_LIGNE := 0.3
+const DUREE_COMPTEUR := 0.45
 
 @onready var titre: Label = $Centre/Colonne/Titre
 @onready var sous_titre: Label = $Centre/Colonne/SousTitre
+@onready var stats: GridContainer = $Centre/Colonne/Stats
+@onready var boutons: HBoxContainer = $Centre/Colonne/Boutons
 @onready var bouton_suivant: Button = $Centre/Colonne/Boutons/Suivant
 @onready var bouton_rejouer: Button = $Centre/Colonne/Boutons/Rejouer
+
+var _tween: Tween
+var _animation_finie := false
+var _lignes: Array[Dictionary] = []
 
 
 func afficher(victoire: bool, progression: float, temps: float) -> void:
 	titre.text = tr("VICTOIRE") if victoire else tr("GAME_OVER")
 	titre.add_theme_color_override("font_color", COULEUR_VICTOIRE if victoire else COULEUR_DEFAITE)
-	var pourcent := int(round(progression * 100))
-	if victoire:
-		var rang: int = Scores.enregistrer(GameState.cle_score(), temps)
-		sous_titre.text = tr("VILLE_PEINTE_TEMPS") % [pourcent, GameState.formater_temps(temps)]
-		if rang == 0:
-			sous_titre.text += "   ·   " + tr("NOUVEAU_RECORD")
-	else:
-		sous_titre.text = tr("VILLE_PEINTE") % pourcent
 
+	var pourcent := int(round(progression * 100))
+	var record_precedent := -1.0
+	var rang := -1
 	if victoire:
+		record_precedent = Scores.meilleur_temps(GameState.cle_score())
+		rang = Scores.enregistrer(GameState.cle_score(), temps)
 		_lancer_confettis()
+	sous_titre.text = tr("NOUVEAU_RECORD") if rang == 0 else ""
+	sous_titre.visible = rang == 0
+	sous_titre.modulate.a = 0.0
+
+	_ajouter_ligne(tr("STAT_PEINT"), pourcent, "%d %%")
+	var commentaire_temps := ""
+	var couleur_temps := Color.WHITE
+	if victoire:
+		if record_precedent < 0.0:
+			commentaire_temps = tr("PREMIER_TEMPS")
+		else:
+			var ecart := temps - record_precedent
+			commentaire_temps = ("−" if ecart < 0.0 else "+") + GameState.formater_temps(abs(ecart))
+			couleur_temps = COULEUR_MIEUX if ecart < 0.0 else COULEUR_MOINS_BIEN
+	_ajouter_ligne(tr("STAT_TEMPS"), int(temps), "temps", commentaire_temps, couleur_temps)
+	var max_vies: int = GameState.difficulte().vies
+	var sans_egratignure := victoire and GameState.coups_recus == 0
+	_ajouter_ligne(tr("STAT_COEURS_PERDUS"), GameState.coups_recus, "%d / " + str(max_vies),
+		tr("SANS_EGRATIGNURE") if sans_egratignure else "", COULEUR_MIEUX)
+	_ajouter_ligne(tr("STAT_COULEURS"), GameState.couleurs_debloquees.size(), "%d / " + str(GameState.nb_couleurs_total()))
+	if victoire and record_precedent >= 0.0:
+		_ajouter_ligne(tr("STAT_RECORD_PRECEDENT"), int(record_precedent), "temps")
+
 	bouton_suivant.visible = victoire and GameState.niveau_suivant_existe()
+	boutons.modulate.a = 0.0
+	_animer()
+
+
+## Une ligne = nom, valeur (compteur animé), commentaire optionnel.
+## `format` : chaîne avec %d, ou "temps" pour mm:ss.
+func _ajouter_ligne(nom: String, valeur: int, format: String, commentaire := "", couleur_commentaire := Color.WHITE) -> void:
+	var label_nom := Label.new()
+	label_nom.text = nom
+	label_nom.add_theme_font_size_override("font_size", 32)
+	label_nom.add_theme_color_override("font_color", COULEUR_NOM)
+	label_nom.modulate.a = 0.0
+	var label_valeur := Label.new()
+	label_valeur.add_theme_font_size_override("font_size", 36)
+	label_valeur.custom_minimum_size = Vector2(170, 0)
+	label_valeur.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	label_valeur.modulate.a = 0.0
+	var label_commentaire := Label.new()
+	label_commentaire.text = commentaire
+	label_commentaire.add_theme_font_size_override("font_size", 30)
+	label_commentaire.add_theme_color_override("font_color", couleur_commentaire)
+	label_commentaire.custom_minimum_size = Vector2(240, 0)
+	label_commentaire.modulate.a = 0.0
+	stats.add_child(label_nom)
+	stats.add_child(label_valeur)
+	stats.add_child(label_commentaire)
+	var ligne := {"nom": label_nom, "valeur": label_valeur, "commentaire": label_commentaire,
+		"cible": valeur, "format": format}
+	_lignes.append(ligne)
+	_ecrire_valeur(ligne, 0)
+
+
+func _ecrire_valeur(ligne: Dictionary, valeur: int) -> void:
+	var format: String = ligne.format
+	ligne.valeur.text = GameState.formater_temps(valeur) if format == "temps" else format % valeur
+
+
+func _animer() -> void:
+	_tween = create_tween()
+	for ligne in _lignes:
+		_tween.tween_property(ligne.nom, "modulate:a", 1.0, 0.15)
+		_tween.parallel().tween_property(ligne.valeur, "modulate:a", 1.0, 0.15)
+		_tween.parallel().tween_method(func(v: float) -> void: _ecrire_valeur(ligne, int(round(v))),
+			0.0, float(ligne.cible), DUREE_COMPTEUR)
+		_tween.parallel().tween_property(ligne.commentaire, "modulate:a", 1.0, 0.3).set_delay(DUREE_COMPTEUR * 0.6)
+		_tween.tween_interval(DELAI_LIGNE - 0.15)
+	if sous_titre.visible:
+		_tween.tween_property(sous_titre, "modulate:a", 1.0, 0.25)
+		_tween.parallel().tween_property(sous_titre, "scale", Vector2.ONE, 0.35).from(Vector2(1.6, 1.6)) \
+			.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		sous_titre.pivot_offset = sous_titre.size / 2.0
+	_tween.tween_property(boutons, "modulate:a", 1.0, 0.25)
+	_tween.tween_callback(_terminer_animation)
+
+
+## Affiche tout d'un coup et donne le focus aux boutons.
+func _terminer_animation() -> void:
+	if _animation_finie:
+		return
+	_animation_finie = true
+	if _tween != null and _tween.is_valid():
+		_tween.kill()
+	for ligne in _lignes:
+		ligne.nom.modulate.a = 1.0
+		ligne.valeur.modulate.a = 1.0
+		ligne.commentaire.modulate.a = 1.0
+		_ecrire_valeur(ligne, ligne.cible)
+	sous_titre.modulate.a = 1.0
+	sous_titre.scale = Vector2.ONE
+	boutons.modulate.a = 1.0
 	(bouton_suivant if bouton_suivant.visible else bouton_rejouer).grab_focus()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if _animation_finie:
+		return
+	if event.is_action_pressed("vomir") or event.is_action_pressed("ui_accept") or event is InputEventScreenTouch:
+		_terminer_animation()
+		get_viewport().set_input_as_handled()
 
 
 func _on_suivant_pressed() -> void:
@@ -85,6 +195,6 @@ func _lancer_confettis() -> void:
 		confettis.one_shot = true
 		confettis.explosiveness = 0.9
 		confettis.position = Vector2(x, taille.y + 10)
-		confettis.z_index = -1
 		add_child(confettis)
+		move_child(confettis, 1)  # au-dessus du fond assombri, sous le texte
 		confettis.emitting = true

@@ -76,8 +76,30 @@ func _run() -> void:
 	await _shot("03b_pause")
 	main.get_node("PauseMenu").reprendre()
 	GS.terminer_partie(false)
-	await _attendre(0.1)
+	await _attendre(3.5)
 	await _shot("04_game_over")
+
+	# Victoire avec record précédent
+	paused = false
+	main.free()
+	root.get_node("Scores").chemin = "user://scores_captures.cfg"
+	root.get_node("Scores").effacer()
+	root.get_node("Scores").enregistrer("skyline/facile", 95.0)
+	GS.niveau_courant = 0
+	main = load("res://Scenes/Main.tscn").instantiate()
+	root.add_child(main)
+	current_scene = main
+	await _attendre(0.2)
+	for i in range(7):
+		GS.debloquer_couleur(i)
+	GS.temps_ecoule = 71.0
+	GS.toucher_lion(Vector2.INF)
+	GS.signaler_progression(0.91)
+	await _attendre(1.2)
+	await _shot("04b_victoire_animation")
+	await _attendre(3.0)
+	await _shot("04b_victoire")
+	root.get_node("Scores").effacer()
 	paused = false
 	main.free()
 

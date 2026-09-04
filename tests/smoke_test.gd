@@ -220,6 +220,12 @@ func _run() -> void:
 	var overlay: Node = main.get_node_or_null("GameOver")
 	_check(overlay != null, "l'overlay GameOver est affiché")
 	_check(overlay != null and overlay.titre.text == tr("GAME_OVER"), "l'overlay affiche GAME OVER")
+	_check(overlay != null and overlay._lignes.size() == 4 and overlay._lignes[2].cible == GS.coups_recus and GS.coups_recus == 2,
+		"le bilan de défaite a 4 lignes et compte les coups reçus (%d)" % GS.coups_recus)
+	_check(overlay != null and not overlay.sous_titre.visible, "pas de badge record sur une défaite")
+	overlay._terminer_animation()
+	_check(overlay != null and overlay._lignes[0].valeur.text == "%d %%" % int(round(GS.progression * 100)) and overlay.bouton_rejouer.has_focus(),
+		"sauter l'animation affiche les valeurs finales et donne le focus")
 	_check(overlay != null and not overlay.bouton_suivant.visible, "pas de bouton Niveau suivant après une défaite")
 
 	_check(Input.get_action_strength("deplacer_droite") == 0.0, "la défaite relâche le stick virtuel")
@@ -253,7 +259,11 @@ func _run() -> void:
 		if enfant is GPUParticles2D:
 			nb_confettis += 1
 	_check(nb_confettis == 3, "la victoire lance des confettis (%d émetteurs)" % nb_confettis)
-	_check(overlay != null and tr("NOUVEAU_RECORD") in overlay.sous_titre.text, "la victoire enregistre un record")
+	_check(overlay != null and tr("NOUVEAU_RECORD") in overlay.sous_titre.text and overlay.sous_titre.visible, "la victoire affiche le badge Nouveau record")
+	_check(overlay != null and overlay._lignes[1].commentaire.text == tr("PREMIER_TEMPS"), "premier temps sur ce niveau : pas de comparaison")
+	_check(overlay != null and overlay._lignes[2].commentaire.text == tr("SANS_EGRATIGNURE"), "victoire sans coup reçu : « Sans une égratignure »")
+	await create_timer(4.0).timeout
+	_check(overlay != null and overlay._animation_finie and overlay.bouton_suivant.has_focus(), "l'animation du bilan se termine seule et donne le focus")
 	_check(overlay != null and overlay.bouton_suivant.visible, "le bouton Niveau suivant est proposé")
 	_check(scores.meilleur_temps("metropole/facile") >= 0.0, "le record est persisté par niveau et difficulté")
 	scores.effacer()

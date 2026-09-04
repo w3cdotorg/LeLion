@@ -34,3 +34,10 @@ VOLUME_EFFETS,Effets sonores,Sound effects
 PLEIN_ECRAN,Plein écran,Fullscreen
 LANGUE,Langue,Language
 FERMER,Fermer,Close
+STAT_PEINT,Ville peinte,Town painted
+STAT_TEMPS,Temps,Time
+STAT_COEURS_PERDUS,Cœurs perdus,Hearts lost
+STAT_COULEURS,Couleurs,Colors
+STAT_RECORD_PRECEDENT,Record précédent,Previous best
+PREMIER_TEMPS,Premier temps !,First time!
+SANS_EGRATIGNURE,Sans une égratignure !,Flawless!
