@@ -13,7 +13,12 @@ extends Node2D
 var _tremblement_restant := 0.0
 
 
+const ACTIONS_DE_JEU := ["deplacer_gauche", "deplacer_droite", "deplacer_haut", "deplacer_bas", "vomir"]
+
+
 func _ready() -> void:
+	for action in ACTIONS_DE_JEU:
+		Input.action_release(action)
 	GameState.nouvelle_partie()
 	GameState.partie_terminee.connect(_on_partie_terminee)
 	GameState.lion_touche.connect(func(_o: Vector2) -> void: trembler())

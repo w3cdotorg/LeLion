@@ -21,7 +21,14 @@ var _position_repos := Vector2.ZERO
 func _ready() -> void:
 	_position_repos = Vector2(rayon + 60.0, get_viewport_rect().size.y - rayon - 60.0)
 	_centre = _position_repos
+	GameState.partie_terminee.connect(func(_v: bool) -> void: fin())
 	queue_redraw()
+
+
+## Les actions vivent dans le singleton Input : on les relâche quand le stick disparaît
+## (changement de scène), sinon le lion garderait la dernière direction.
+func _exit_tree() -> void:
+	relacher_actions()
 
 
 func _input(event: InputEvent) -> void:
@@ -58,9 +65,13 @@ func fin() -> void:
 	_index_touche = -1
 	vecteur = Vector2.ZERO
 	_centre = _position_repos
+	relacher_actions()
+	queue_redraw()
+
+
+static func relacher_actions() -> void:
 	for action in ACTIONS:
 		Input.action_release(action)
-	queue_redraw()
 
 
 func _appliquer_actions() -> void:

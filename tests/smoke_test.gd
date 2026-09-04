@@ -176,7 +176,9 @@ func _run() -> void:
 	_check(not is_instance_valid(coeur) and GS.vies == 3, "un cœur ramassé rend une vie (%d)" % GS.vies)
 	_check(not GS.gagner_vie(), "impossible de dépasser le maximum de vies")
 
-	# Défaite : trois coups
+	# Défaite : trois coups, le doigt toujours sur le stick
+	stick.debut(Vector2(300, 500))
+	stick.glisser(Vector2(300 + stick.rayon, 500))
 	GS.vies = 1
 	coccinelle = spawner.spawn_coccinelle(lion.global_position.y + 66)
 	coccinelle.position.x = lion.global_position.x + 68
@@ -188,6 +190,9 @@ func _run() -> void:
 	_check(overlay != null and overlay.titre.text == "GAME OVER", "l'overlay affiche GAME OVER")
 	_check(overlay != null and not overlay.bouton_suivant.visible, "pas de bouton Niveau suivant après une défaite")
 
+	_check(Input.get_action_strength("deplacer_droite") == 0.0, "la défaite relâche le stick virtuel")
+	Input.action_press("deplacer_droite", 1.0)  # comme un doigt resté posé
+
 	# Victoire sur le niveau Métropole : nouvelle partie, on peint toute la skyline
 	paused = false
 	main.queue_free()
@@ -197,6 +202,7 @@ func _run() -> void:
 	root.add_child(main)
 	current_scene = main
 	await _frames(2)
+	_check(Input.get_action_strength("deplacer_droite") == 0.0, "une nouvelle partie démarre avec les actions relâchées")
 	ville = main.get_node("Ville")
 	_check(ville.tex_size == Vector2i(2000, 320), "la ville a chargé la skyline du niveau Métropole (%s)" % ville.tex_size)
 	GS.debloquer_couleur(0)
